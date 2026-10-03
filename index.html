@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#102f71">
+<title>Classe A | Equatorial Maranhão</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23102f71'/%3E%3Ctext x='32' y='43' text-anchor='middle' font-size='32' font-family='Arial' font-weight='bold' fill='white'%3EA%3C/text%3E%3C/svg%3E">
+<meta name="description" content="Acompanhamento dos ciclos do Classe A: cursos, feedbacks, RRs e PMS.">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- LOADING -->
+<div id="view-loading" class="center-screen"><div class="spinner"></div></div>
+
+<!-- LOGIN / CADASTRO -->
+<div id="view-auth" class="center-screen" style="display:none">
+  <div class="auth-card">
+    <div class="auth-brand">Equatorial Maranhão</div>
+    <h1 class="auth-title">Classe A</h1>
+    <div class="auth-tabs">
+      <button type="button" id="auth-tab-login" class="auth-tab active">Entrar</button>
+      <button type="button" id="auth-tab-signup" class="auth-tab">Solicitar acesso</button>
+    </div>
+    <form id="form-login" class="auth-form">
+      <label>E-mail</label>
+      <input type="email" id="login-email" required autocomplete="username">
+      <label>Senha</label>
+      <input type="password" id="login-password" required autocomplete="current-password">
+      <p id="login-error" class="form-error"></p>
+      <button type="submit" class="btn-primary full">Entrar</button>
+    </form>
+    <form id="form-signup" class="auth-form" style="display:none">
+      <label>Nome completo</label>
+      <input type="text" id="signup-name" required>
+      <label>E-mail</label>
+      <input type="email" id="signup-email" required autocomplete="username">
+      <label>Crie uma senha</label>
+      <input type="password" id="signup-password" required autocomplete="new-password" minlength="6">
+      <label>Mensagem (opcional)</label>
+      <textarea id="signup-message" rows="2" placeholder="Ex: sou o Felipe, da equipe de marketing"></textarea>
+      <p id="signup-error" class="form-error"></p>
+      <button type="submit" class="btn-primary full">Solicitar acesso</button>
+    </form>
+  </div>
+</div>
+
+<!-- PENDENTE DE APROVAÇÃO -->
+<div id="view-pending" class="center-screen" style="display:none">
+  <div class="auth-card">
+    <div class="auth-brand">Equatorial Maranhão</div>
+    <h1 class="auth-title">Classe A</h1>
+    <div id="pending-box" class="pending-box"></div>
+    <button type="button" class="btn-secondary full" onclick="location.reload()">Atualizar</button>
+    <button type="button" class="link-btn" id="pending-logout" style="margin-top:10px">Sair</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="view-app" style="display:none">
+  <header>
+    <div class="shell">
+      <div class="bar">
+        <div class="wordmark" style="font-size:16px;letter-spacing:-.02em">Equatorial Maranhão</div>
+        <div class="user-box">
+          <span id="user-role" class="role-badge"></span>
+          <span id="user-name" class="user-name"></span>
+          <button type="button" id="logout-btn" class="link-btn">Sair</button>
+        </div>
+      </div>
+      <div class="masthead">
+        <div>
+          <div class="eyebrow">Gerência de Comunicação e Marketing</div>
+          <h1>Classe A</h1>
+          <p>Um lugar para acompanhar as entregas do ciclo, reconhecer o que avançou e enxergar com clareza o que ainda precisa acontecer.</p>
+        </div>
+      </div>
+      <div id="cycle-tabs" class="cycle-tabs"></div>
+      <nav class="main-nav">
+        <button type="button" class="main-tab active" data-tab="visao">Visão geral</button>
+        <button type="button" class="main-tab" data-tab="pessoas">Colaboradores</button>
+        <button type="button" class="main-tab" data-tab="meses">Por mês</button>
+        <button type="button" class="main-tab" data-tab="sobre">Sobre o ciclo</button>
+        <button type="button" id="tab-admin-btn" class="main-tab" data-tab="admin" style="display:none">Administração</button>
+      </nav>
+    </div>
+  </header>
+  <main class="shell main">
+    <section class="tab-panel" id="panel-visao"></section>
+    <section class="tab-panel" id="panel-pessoas" style="display:none"></section>
+    <section class="tab-panel" id="panel-meses" style="display:none"></section>
+    <section class="tab-panel" id="panel-sobre" style="display:none"></section>
+    <section class="tab-panel" id="panel-admin" style="display:none"></section>
+  </main>
+</div>
+
+<!-- MODAL -->
+<div id="modal-backdrop" class="modal-backdrop" style="display:none">
+  <div class="modal-card" id="modal-body"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
