@@ -26,6 +26,15 @@ const TYPE_META = {
 // Cores do anel de avatar, sorteadas por pessoa a partir do nome (resultado
 // estável) para variar como no mockup.
 const AVATAR_RING_COLORS = ['#2862c4', '#1b9e4e', '#7a3fd1', '#c23b82', '#128a7d', '#b8780a'];
+const ICON_CHECK = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="currentColor" opacity=".16"/><path d="M7.5 12.5l3 3 6-6.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const ICON_CLOCK = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M12 7.5V12l3 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const ICON_EYE = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8"/></svg>';
+const ICON_SEARCH = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="10.5" cy="10.5" r="6.5" stroke="currentColor" stroke-width="1.8"/><path d="M19.5 19.5l-4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
+// Ilustrações decorativas simples (estilo flat) usadas em alguns blocos.
+const ILLUS_DOCS = '<svg width="92" height="76" viewBox="0 0 92 76" fill="none"><circle cx="46" cy="38" r="36" fill="#eaf1fd"/><rect x="24" y="14" width="34" height="46" rx="5" fill="#fff" stroke="#bcd2f9" stroke-width="2"/><path d="M31 27h20M31 35h20M31 43h13" stroke="#9db6e8" stroke-width="2.4" stroke-linecap="round"/><circle cx="64" cy="52" r="12" fill="#1b9e4e"/><path d="M58.5 52l3.8 3.8 7.2-8" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const ILLUS_PEOPLE = '<svg width="92" height="76" viewBox="0 0 92 76" fill="none"><circle cx="46" cy="38" r="36" fill="#eaf8ef"/><circle cx="34" cy="30" r="10" fill="#bcd2f9"/><path d="M16 60c0-11 8-17 18-17s18 6 18 17" fill="#dce9fd"/><circle cx="60" cy="33" r="8.5" fill="#9de0b8"/><path d="M45 60c1-9 7.5-14.5 15-14.5S74 51 75 60" fill="#c7f0d7"/></svg>';
+const ILLUS_SHIELD = '<svg width="92" height="76" viewBox="0 0 92 76" fill="none"><circle cx="46" cy="38" r="36" fill="#ece3fb"/><path d="M46 14l16 6v14c0 12-7 20-16 24-9-4-16-12-16-24V20l16-6Z" fill="#fff" stroke="#b7a0ea" stroke-width="2.4" stroke-linejoin="round"/><circle cx="46" cy="38" r="7" fill="#7a3fd1"/><rect x="43.3" y="37" width="5.4" height="7" rx="1.3" fill="#fff"/></svg>';
+const ILLUS_CHECKLIST = '<svg width="150" height="110" viewBox="0 0 150 110" fill="none"><ellipse cx="78" cy="96" rx="52" ry="10" fill="#eaf1fd"/><rect x="42" y="18" width="58" height="76" rx="8" fill="#fff" stroke="#bcd2f9" stroke-width="2.4"/><rect x="54" y="10" width="34" height="14" rx="4" fill="#2862c4"/><g stroke="#9db6e8" stroke-width="2.4" stroke-linecap="round"><path d="M53 42h34M53 56h34M53 70h22"/></g><circle cx="52" cy="42" r="5" fill="#dff5e8" stroke="#1b9e4e" stroke-width="1.6"/><circle cx="52" cy="56" r="5" fill="#dff5e8" stroke="#1b9e4e" stroke-width="1.6"/><circle cx="110" cy="40" r="17" fill="#1b9e4e"/><path d="M102 40l5.5 5.5L118 34" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 function avatarColorFor(name) {
   let h = 0;
   for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) >>> 0;
@@ -462,9 +471,8 @@ function renderPeople() {
             <div class="avatar-ring" style="--pct:${pct};--ring-color:${ringColor}">${avatarInner}<span class="avatar-pct">${pct}%</span></div>
           </div>
           <h3>${escapeHtml(p.name)}</h3>
-          <div class="person-line"><span>Curso</span><span class="status-pill ${courseDone ? 'ok' : 'pending'}">${courseDone ? 'Concluído' : 'Pendente'}</span></div>
-          <div class="person-line"><span>Feedback</span><span class="status-pill ${feedbackDone ? 'ok' : 'pending'}">${feedbackDone ? 'Concluído' : 'Pendente'}</span></div>
-          ${course && course.course_name ? `<div class="course-name">📘 ${escapeHtml(course.course_name)}</div>` : ''}
+          <div class="person-line"><span>Curso</span>${course && course.course_name ? `<b>${escapeHtml(course.course_name)}</b>` : `<span class="status-inline ${courseDone ? 'ok' : 'pending'}">${ICON_CLOCK}${courseDone ? 'Concluído' : 'Pendente'}</span>`}</div>
+          <div class="person-line"><span>Feedback</span><span class="status-inline ${feedbackDone ? 'ok' : 'pending'}">${feedbackDone ? ICON_CHECK : ICON_CLOCK}${feedbackDone ? 'Concluído' : 'Pendente'}</span></div>
           ${course && course.diploma_path ? `<button class="link-btn diploma-view" data-path="${course.diploma_path}">Ver diploma anexado</button>` : ''}
           ${isMaster ? `<div class="person-feedback-row"><button class="pill-btn feedback-toggle" data-person="${p.id}" data-status="${feedback ? feedback.status : 'pendente'}">${feedbackDone ? '✓ Feedback ok' : 'Marcar feedback'}</button></div>` : ''}
           ${canEditCourse ? `<button class="pill-btn light edit-course" data-person="${p.id}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M4 5h16v11H8l-4 4V5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>${course && course.diploma_path ? 'Atualizar curso' : 'Registrar curso'}<svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>` : ''}
@@ -584,18 +592,37 @@ function renderMonths() {
           <div class="month-ring-wrap"><div class="ring" style="--pct:${donePct};--ring-color:${ringColor}"><b>${donePct}%</b></div></div>
           <div class="month-row"><span>RR</span>${monthBadge('rrs', order, rr, isMaster)}</div>
           <div class="month-row"><span>PMS</span>${monthBadge('pms', order, pm, isMaster)}</div>
+          <button type="button" class="month-detail-link" data-label="${escapeAttr(label)}">${ICON_EYE}Ver detalhes do mês</button>
         </article>`;
       }).join('')}
     </div>
   `;
   $$('.month-toggle', el).forEach(b => b.addEventListener('click', () => toggleMonth(b.dataset.table, Number(b.dataset.order), b.dataset.label)));
+  $$('.month-detail-link', el).forEach(b => b.addEventListener('click', () => openMonthDetail(b.dataset.label)));
+}
+
+function openMonthDetail(label) {
+  const cycle = currentCycle();
+  const months = MONTHS_BY_CYCLE[cycle.cycle_number] || [];
+  const order = months.indexOf(label) + 1;
+  const rr = state.rrs.find(r => r.month_order === order);
+  const pm = state.pms.find(r => r.month_order === order);
+  const rrDone = rr && rr.status === 'concluido', pmDone = pm && pm.status === 'concluido';
+  openModal(`
+    <h3>${escapeHtml(label)} · ${escapeHtml(cycle.label)}</h3>
+    <div class="person-line"><span>RR</span><span class="status-inline ${rrDone ? 'ok' : 'pending'}">${rrDone ? ICON_CHECK : ICON_CLOCK}${rrDone ? 'Realizada' : 'Pendente'}</span></div>
+    <div class="person-line"><span>PMS</span><span class="status-inline ${pmDone ? 'ok' : 'pending'}">${pmDone ? ICON_CHECK : ICON_CLOCK}${pmDone ? 'Concluído' : 'Pendente'}</span></div>
+    <div class="modal-actions"><button type="button" class="btn-secondary" id="modal-cancel">Fechar</button></div>
+  `);
+  $('#modal-cancel').addEventListener('click', closeModal);
 }
 
 function monthBadge(table, order, row, isMaster) {
   const done = row && row.status === 'concluido';
   const text = done ? (table === 'rrs' ? 'Realizada' : 'Concluído') : 'Pendente';
-  if (!isMaster) return `<span class="status-pill ${done ? 'ok' : 'pending'}">${text}</span>`;
-  return `<button type="button" class="month-toggle btn-tiny status-pill ${done ? 'ok' : 'pending'}" data-table="${table}" data-order="${order}">${text}</button>`;
+  const icon = done ? ICON_CHECK : ICON_CLOCK;
+  if (!isMaster) return `<span class="status-inline ${done ? 'ok' : 'pending'}">${icon}${text}</span>`;
+  return `<button type="button" class="month-toggle status-inline ${done ? 'ok' : 'pending'}" style="background:none;border:none;padding:0" data-table="${table}" data-order="${order}">${icon}${text}</button>`;
 }
 
 async function toggleMonth(table, order, label) {
@@ -623,6 +650,7 @@ function renderAbout() {
         <span class="icon-badge lg blue"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="4.5" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="1.3" fill="currentColor"/></svg></span>
         <div class="section-head-text"><h2>Sobre o Classe A</h2><p>Informações e regras do ciclo.</p></div>
       </div>
+      <span class="section-pill"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M6 3h9l5 5v13H6V3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M15 3v5h5" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>Regras do programa<svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
     </div>
     <div class="explainer">
       <article class="surface explain-card">
@@ -640,7 +668,12 @@ function renderAbout() {
           <li>3 RRs, uma em cada mês do trimestre.</li>
           <li>3 registros de PMS, um em cada mês do trimestre.</li>
         </ul>
+        <div style="text-align:right;margin-top:6px">${ILLUS_CHECKLIST}</div>
       </article>
+    </div>
+    <div class="surface info-strip">
+      <span class="icon-badge blue"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M16 11c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3Zm-8 0c1.66 0 3-1.34 3-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3Zm0 2c-2.67 0-8 1.34-8 4v2h10v-2c0-1.35.68-2.46 1.76-3.32C10.5 13.16 9.14 13 8 13Zm8 0c-.29 0-.62.02-.97.05C16.2 13.84 17 14.84 17 16v2h7v-2c0-2.66-5.33-4-8-4Z" fill="currentColor"/></svg></span>
+      <div><h4>Classe A</h4><p>Este painel mostra apenas o andamento informado pela equipe. Critérios de avaliação, pontuação e regras oficiais do Classe A devem ser consultados nos materiais internos do programa.</p></div>
     </div>
   `;
 }
@@ -661,48 +694,57 @@ function renderAdmin() {
     </div>
 
     <div class="surface admin-block">
-      <h3><span class="icon-badge sm amber"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7l8-4Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg></span>Solicitações de acesso pendentes</h3>
-      ${state.pendingRequests.length ? state.pendingRequests.map(r => `
-        <div class="request-row" data-req="${r.id}">
-          <div><strong>${escapeHtml(r.full_name)}</strong><small>${escapeHtml(r.email)}</small>${r.message ? `<small class="msg">"${escapeHtml(r.message)}"</small>` : ''}</div>
-          <div class="request-selects">
-            <select class="req-role">
-              <option value="colaborador">Colaborador (aparece no acompanhamento)</option>
-              <option value="master">Máster (acesso total, não aparece no acompanhamento)</option>
-            </select>
-            <select class="req-person">
-              <option value="">— vincular a colaborador existente —</option>
-              ${state.people.map(p => `<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('')}
-              <option value="__new__">+ criar novo colaborador com este nome</option>
-            </select>
+      <div class="admin-block-main">
+        <div class="block-head"><span class="icon-badge sm amber"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7l8-4Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg></span><div class="block-head-text"><h3>Solicitações de acesso pendentes</h3><p>${state.pendingRequests.length ? state.pendingRequests.length + ' aguardando revisão.' : 'Nenhuma solicitação pendente no momento.'}</p></div></div>
+        ${state.pendingRequests.length ? state.pendingRequests.map(r => `
+          <div class="request-row" data-req="${r.id}">
+            <div><strong>${escapeHtml(r.full_name)}</strong><small>${escapeHtml(r.email)}</small>${r.message ? `<small class="msg">"${escapeHtml(r.message)}"</small>` : ''}</div>
+            <div class="request-selects">
+              <select class="req-role">
+                <option value="colaborador">Colaborador (aparece no acompanhamento)</option>
+                <option value="master">Máster (acesso total, não aparece no acompanhamento)</option>
+              </select>
+              <select class="req-person">
+                <option value="">— vincular a colaborador existente —</option>
+                ${state.people.map(p => `<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('')}
+                <option value="__new__">+ criar novo colaborador com este nome</option>
+              </select>
+            </div>
+            <div class="request-actions">
+              <button type="button" class="pill-btn approve-req">Aprovar</button>
+              <button type="button" class="pill-btn light reject-req">Recusar</button>
+            </div>
           </div>
-          <div class="request-actions">
-            <button type="button" class="pill-btn approve-req">Aprovar</button>
-            <button type="button" class="pill-btn light reject-req">Recusar</button>
-          </div>
-        </div>
-      `).join('') : '<p class="empty section-pill ok"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4.5 4.5L19 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Tudo em dia</p>'}
-    </div>
-
-    <div class="surface admin-block">
-      <h3><span class="icon-badge sm green"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M16 11c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3Zm-8 0c1.66 0 3-1.34 3-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3Zm0 2c-2.67 0-8 1.34-8 4v2h10v-2c0-1.35.68-2.46 1.76-3.32C10.5 13.16 9.14 13 8 13Zm8 0c-.29 0-.62.02-.97.05C16.2 13.84 17 14.84 17 16v2h7v-2c0-2.66-5.33-4-8-4Z" fill="currentColor"/></svg></span>Colaboradores</h3>
-      <div class="admin-list">
-        ${state.people.map(p => `<span class="chip">${escapeHtml(p.name)}</span>`).join('')}
+        `).join('') : `<span class="section-pill ok">${ICON_CHECK}Tudo em dia</span>`}
       </div>
-      <form id="add-person-form" class="inline-form add-person-row">
-        <input type="text" id="new-person-name" placeholder="Nome da pessoa" required>
-        <select id="new-person-type">
-          <option value="colaborador">Funcionário (aparece no acompanhamento)</option>
-          <option value="master">Máster (acesso administrativo, não aparece aqui)</option>
-        </select>
-        <button type="submit" class="pill-btn">Adicionar</button>
-      </form>
-      <p class="master-hint" id="new-person-hint" style="display:none">Esta pessoa será cadastrada como <b>Máster</b>: ela não entra na lista de colaboradores acompanhados. Para dar acesso de login a ela, crie a conta pelo cadastro normal e aprove-a em "Solicitações de acesso" escolhendo o nível Máster — ou ajuste o nível dela em "Usuários e permissões" caso já tenha uma conta.</p>
+      <div class="block-illus">${ILLUS_DOCS}</div>
     </div>
 
     <div class="surface admin-block">
-      <h3><span class="icon-badge sm blue"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8.5" r="3.3" stroke="currentColor" stroke-width="1.7"/><path d="M5 20c0-3.5 3.1-6 7-6s7 2.5 7 6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></span>Usuários e permissões</h3>
-      <div id="profiles-list">Carregando...</div>
+      <div class="admin-block-main">
+        <div class="block-head"><span class="icon-badge sm green"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M16 11c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3Zm-8 0c1.66 0 3-1.34 3-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3Zm0 2c-2.67 0-8 1.34-8 4v2h10v-2c0-1.35.68-2.46 1.76-3.32C10.5 13.16 9.14 13 8 13Zm8 0c-.29 0-.62.02-.97.05C16.2 13.84 17 14.84 17 16v2h7v-2c0-2.66-5.33-4-8-4Z" fill="currentColor"/></svg></span><div class="block-head-text"><h3>Colaboradores</h3><p>Gerencie os colaboradores da equipe.</p></div></div>
+        <div class="admin-list">
+          ${state.people.map(p => `<span class="chip" style="--dot:${avatarColorFor(p.name)}">${escapeHtml(p.name)}</span>`).join('')}
+        </div>
+        <form id="add-person-form" class="inline-form add-person-row">
+          <div class="search-field">${ICON_SEARCH}<input type="text" id="new-person-name" placeholder="Nome da pessoa" required></div>
+          <select id="new-person-type">
+            <option value="colaborador">Funcionário (aparece no acompanhamento)</option>
+            <option value="master">Máster (acesso administrativo, não aparece aqui)</option>
+          </select>
+          <button type="submit" class="pill-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>Adicionar</button>
+        </form>
+        <p class="master-hint" id="new-person-hint" style="display:none">Esta pessoa será cadastrada como <b>Máster</b>: ela não entra na lista de colaboradores acompanhados. Para dar acesso de login a ela, crie a conta pelo cadastro normal e aprove-a em "Solicitações de acesso" escolhendo o nível Máster — ou ajuste o nível dela em "Usuários e permissões" caso já tenha uma conta.</p>
+      </div>
+      <div class="block-illus">${ILLUS_PEOPLE}</div>
+    </div>
+
+    <div class="surface admin-block">
+      <div class="admin-block-main">
+        <div class="block-head"><span class="icon-badge sm blue"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8.5" r="3.3" stroke="currentColor" stroke-width="1.7"/><path d="M5 20c0-3.5 3.1-6 7-6s7 2.5 7 6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></span><div class="block-head-text"><h3>Usuários e permissões</h3><p>Gerencie as permissões de acesso do sistema.</p></div></div>
+        <div id="profiles-list">Carregando...</div>
+      </div>
+      <div class="block-illus">${ILLUS_SHIELD}</div>
     </div>
   `;
 
@@ -787,7 +829,7 @@ async function loadProfilesList() {
     <div class="profile-row">
       <div class="profile-row-main">
         <span class="avatar-mini">${p.avatar_url ? `<img src="${escapeAttr(p.avatar_url)}" alt="">` : escapeHtml((p.full_name || '?')[0])}</span>
-        <div><strong>${escapeHtml(p.full_name)}</strong>${p.people ? `<small> · ${escapeHtml(p.people.name)}</small>` : ''}</div>
+        <div><strong>${escapeHtml(p.full_name)}</strong>${p.people ? `<small> · ${escapeHtml(p.people.name)}</small>` : ''}<span class="role-pill-badge">${p.role === 'master' ? 'Máster' : 'Colaborador'}</span></div>
       </div>
       <select class="role-select" data-id="${p.id}" ${p.id === state.profile.id ? 'disabled title="Você não pode alterar seu próprio nível"' : ''}>
         <option value="colaborador" ${p.role === 'colaborador' ? 'selected' : ''}>Colaborador</option>

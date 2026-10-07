@@ -73,9 +73,14 @@ header{background:linear-gradient(160deg,#0d2a66,#1a4696);color:#fff;position:re
 .person-top{display:flex;align-items:center;justify-content:center;margin-bottom:12px}
 .person-feedback-row{display:flex;justify-content:center;margin-top:8px}
 .person h3{font-size:17px;margin:2px 0 14px;text-align:center}
-.person-line{display:flex;justify-content:space-between;padding:9px 0;border-top:1px solid #edf0f6;font-size:14px;text-align:left}
+.person-line{padding:10px 0;border-top:1px solid #edf0f6;font-size:13px;text-align:left}
+.person-line>span:first-child{display:block;color:#8795ad;font-size:12px;margin-bottom:4px}
 .person-line b{font-size:13px;color:#2459aa}
 .person-line b.todo{color:#7b879b}
+.person-line .status-inline{display:inline-flex;align-items:center;gap:6px;font-weight:700;font-size:13px}
+.person-line .status-inline.ok{color:#1b9e4e}
+.person-line .status-inline.pending{color:#8591a6}
+.person-line .status-inline svg{flex:none}
 .course-name{font-size:13px;color:#3a557f;margin-top:8px;text-align:left}
 .person .diploma-view{display:block;width:100%;text-align:center;margin-top:6px}
 .person .pill-btn{width:100%;justify-content:center;margin-top:10px}
@@ -92,7 +97,8 @@ header{background:linear-gradient(160deg,#0d2a66,#1a4696);color:#fff;position:re
 .month-row:last-child{padding-bottom:0}
 .month-row b{color:#2459aa}
 .month-row b.todo{color:#7b879b}
-.month-detail-link{display:flex;align-items:center;gap:6px;color:#2862c4;font-size:13px;font-weight:700;background:none;border:none;padding:14px 0 0;width:100%;justify-content:center}
+.month-detail-link{display:flex;align-items:center;gap:6px;color:#2862c4;font-size:13px;font-weight:700;background:none;border:none;padding:14px 0 0;width:100%;justify-content:center;border-top:1px solid #edf0f6;margin-top:4px}
+.month-row b svg,.month-row span svg{vertical-align:-2px;margin-right:4px}
 
 /* ---------- Sobre ---------- */
 .explainer{display:grid;grid-template-columns:1fr 1fr;gap:16px}
@@ -101,6 +107,9 @@ header{background:linear-gradient(160deg,#0d2a66,#1a4696);color:#fff;position:re
 .explain-card p{color:#536783;line-height:1.65;margin:0}
 .explain-card ul{padding-left:19px;color:#536783;line-height:1.8;margin:0}
 .note{background:#edf2fb;border-left:3px solid #2d61b5;padding:17px 20px;border-radius:0 12px 12px 0;color:#445d85;line-height:1.6;margin-top:17px}
+.info-strip{display:flex;align-items:center;gap:16px;border-left:3px solid #2862c4;border-radius:0 16px 16px 0;padding:18px 22px;margin-top:16px}
+.info-strip h4{margin:0 0 4px;font-size:15px}
+.info-strip p{margin:0;color:#536783;font-size:13.5px;line-height:1.6}
 .footer{border-top:1px solid #e0e7f1;padding-top:21px;margin-top:48px;color:#7a8aa1;font-size:13px}
 
 /* ---------- Cycle tabs ---------- */
@@ -172,8 +181,13 @@ input[type=text],input[type=email],input[type=password],input[type=number],input
 .pending-box{background:#f5f7fc;border-radius:12px;padding:16px;font-size:14px;line-height:1.6;color:#3a557f;margin:8px 0 16px}
 
 /* ---------- Admin ---------- */
-.admin-block{padding:22px;margin-bottom:16px}
-.admin-block h3{margin:0 0 14px;font-size:17px;display:flex;align-items:center;gap:10px}
+.admin-block{padding:24px;margin-bottom:16px;display:flex;align-items:center;gap:18px}
+.admin-block-main{flex:1;min-width:0}
+.block-head{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.block-head h3{margin:0;font-size:17px}
+.block-head-text p{margin:2px 0 0;color:#7185a3;font-size:12.5px;font-weight:500}
+.block-illus{flex:none;opacity:.95}
+@media(max-width:780px){.block-illus{display:none}}
 .request-row{display:grid;grid-template-columns:1.4fr 1fr auto;gap:12px;align-items:center;border-top:1px solid #edf0f6;padding:12px 0}
 .request-row:first-child{border-top:none}
 .request-row small{display:block;color:#70819c;font-size:12px}
@@ -181,11 +195,16 @@ input[type=text],input[type=email],input[type=password],input[type=number],input
 .request-selects{display:flex;flex-direction:column;gap:6px}
 .request-actions{display:flex;gap:8px}
 .admin-list{display:flex;flex-wrap:wrap;gap:8px}
-.chip{background:#eaf0fb;color:#204c9c;border-radius:99px;padding:6px 12px;font-size:13px;font-weight:650}
-.profile-row{display:flex;justify-content:space-between;align-items:center;border-top:1px solid #edf0f6;padding:10px 0}
+.chip{background:#eaf0fb;color:#204c9c;border-radius:99px;padding:6px 14px 6px 11px;font-size:13px;font-weight:650;display:inline-flex;align-items:center;gap:7px}
+.chip::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--dot,#2862c4);flex:none}
+.profile-row{display:flex;justify-content:space-between;align-items:center;border-top:1px solid #edf0f6;padding:12px 0}
 .profile-row:first-child{border-top:none}
 .profile-row small{color:#70819c;margin-left:4px}
 .role-select{width:auto}
+.role-pill-badge{background:#dbe9ff;color:#2458b0;border-radius:99px;padding:4px 11px;font-size:11.5px;font-weight:750;margin-left:9px;white-space:nowrap}
+.search-field{position:relative;flex:1;min-width:170px}
+.search-field svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#92a3c0;pointer-events:none}
+.search-field input{padding-left:35px}
 
 /* ---------- Responsive ---------- */
 @media(max-width:1020px){
