@@ -30,6 +30,7 @@ const ICON_CHECK = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none">
 const ICON_CLOCK = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M12 7.5V12l3 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const ICON_EYE = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8"/></svg>';
 const ICON_SEARCH = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="10.5" cy="10.5" r="6.5" stroke="currentColor" stroke-width="1.8"/><path d="M19.5 19.5l-4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
+const ICON_CALENDAR = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5" stroke="currentColor" stroke-width="1.8"/><path d="M3.5 9.5h17M8 3v4M16 3v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
 // Ilustrações decorativas simples (estilo flat) usadas em alguns blocos.
 const ILLUS_DOCS = '<svg width="92" height="76" viewBox="0 0 92 76" fill="none"><circle cx="46" cy="38" r="36" fill="#eaf1fd"/><rect x="24" y="14" width="34" height="46" rx="5" fill="#fff" stroke="#bcd2f9" stroke-width="2"/><path d="M31 27h20M31 35h20M31 43h13" stroke="#9db6e8" stroke-width="2.4" stroke-linecap="round"/><circle cx="64" cy="52" r="12" fill="#1b9e4e"/><path d="M58.5 52l3.8 3.8 7.2-8" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const ILLUS_PEOPLE = '<svg width="92" height="76" viewBox="0 0 92 76" fill="none"><circle cx="46" cy="38" r="36" fill="#eaf8ef"/><circle cx="34" cy="30" r="10" fill="#bcd2f9"/><path d="M16 60c0-11 8-17 18-17s18 6 18 17" fill="#dce9fd"/><circle cx="60" cy="33" r="8.5" fill="#9de0b8"/><path d="M45 60c1-9 7.5-14.5 15-14.5S74 51 75 60" fill="#c7f0d7"/></svg>';
@@ -376,7 +377,13 @@ function renderOverview() {
 
   const pend = [];
   const feedbackPend = state.people.filter(p => !state.feedbacks.find(f => f.person_id === p.id && f.status === 'concluido'));
-  if (feedbackPend.length) pend.push({ label: 'Feedbacks', detail: feedbackPend.map(p => p.name).join(' e '), count: feedbackPend.length });
+  if (feedbackPend.length) {
+    const names = feedbackPend.map(p => {
+      const f = state.feedbacks.find(x => x.person_id === p.id);
+      return f && f.scheduled_at ? `${p.name} (${formatDateBR(f.scheduled_at)})` : p.name;
+    });
+    pend.push({ label: 'Feedbacks', detail: names.join(' e '), count: feedbackPend.length });
+  }
   const rrPend = state.rrs.filter(r => r.status !== 'concluido');
   if (rrPend.length) pend.push({ label: 'RRs', detail: rrPend.map(r => r.month_label).join(', '), count: rrPend.length });
   const pmsPend = state.pms.filter(r => r.status !== 'concluido');
@@ -472,9 +479,9 @@ function renderPeople() {
           </div>
           <h3>${escapeHtml(p.name)}</h3>
           <div class="person-line"><span>Curso</span>${course && course.course_name ? `<b>${escapeHtml(course.course_name)}</b>` : `<span class="status-inline ${courseDone ? 'ok' : 'pending'}">${ICON_CLOCK}${courseDone ? 'Concluído' : 'Pendente'}</span>`}</div>
-          <div class="person-line"><span>Feedback</span><span class="status-inline ${feedbackDone ? 'ok' : 'pending'}">${feedbackDone ? ICON_CHECK : ICON_CLOCK}${feedbackDone ? 'Concluído' : 'Pendente'}</span></div>
+          <div class="person-line"><span>Feedback</span><span class="status-inline ${feedbackDone ? 'ok' : 'pending'}">${feedbackDone ? ICON_CHECK : ICON_CLOCK}${feedbackDone ? 'Concluído' : 'Pendente'}</span>${!feedbackDone && feedback && feedback.scheduled_at ? `<span class="schedule-tag">${ICON_CALENDAR}Agendado p/ ${formatDateBR(feedback.scheduled_at)}</span>` : ''}</div>
           ${course && course.diploma_path ? `<button class="link-btn diploma-view" data-path="${course.diploma_path}">Ver diploma anexado</button>` : ''}
-          ${isMaster ? `<div class="person-feedback-row"><button class="pill-btn feedback-toggle" data-person="${p.id}" data-status="${feedback ? feedback.status : 'pendente'}">${feedbackDone ? '✓ Feedback ok' : 'Marcar feedback'}</button></div>` : ''}
+          ${isMaster ? `<div class="person-feedback-row"><button class="pill-btn feedback-toggle" data-person="${p.id}" data-status="${feedback ? feedback.status : 'pendente'}">${feedbackDone ? '✓ Feedback ok' : 'Marcar feedback'}</button>${!feedbackDone ? `<button type="button" class="pill-btn light schedule-feedback" data-person="${p.id}" title="Agendar data do feedback">${ICON_CALENDAR}</button>` : ''}</div>` : ''}
           ${canEditCourse ? `<button class="pill-btn light edit-course" data-person="${p.id}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M4 5h16v11H8l-4 4V5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>${course && course.diploma_path ? 'Atualizar curso' : 'Registrar curso'}<svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>` : ''}
         </article>`;
       }).join('')}
@@ -484,6 +491,58 @@ function renderPeople() {
   $$('.edit-course', el).forEach(b => b.addEventListener('click', () => openCourseModal(b.dataset.person)));
   $$('.diploma-view', el).forEach(b => b.addEventListener('click', () => viewDiploma(b.dataset.path)));
   $$('.feedback-toggle', el).forEach(b => b.addEventListener('click', () => toggleFeedback(b.dataset.person)));
+  $$('.schedule-feedback', el).forEach(b => b.addEventListener('click', () => openScheduleModal(b.dataset.person)));
+}
+
+function formatDateBR(isoDate) {
+  const [y, m, d] = isoDate.split('-');
+  return `${d}/${m}`;
+}
+
+function openScheduleModal(personId) {
+  const person = state.people.find(p => p.id === personId);
+  const feedback = state.feedbacks.find(f => f.person_id === personId);
+  openModal(`
+    <h3>Agendar feedback · ${escapeHtml(person.name)}</h3>
+    <label>Data prevista</label>
+    <input type="date" id="modal-schedule-date" value="${feedback && feedback.scheduled_at ? feedback.scheduled_at : ''}">
+    <p id="modal-schedule-error" class="form-error"></p>
+    <div class="modal-actions">
+      ${feedback && feedback.scheduled_at ? `<button type="button" class="btn-secondary" id="modal-schedule-clear">Remover data</button>` : ''}
+      <button type="button" class="btn-secondary" id="modal-cancel">Cancelar</button>
+      <button type="button" class="btn-primary" id="modal-save">Salvar</button>
+    </div>
+  `);
+  $('#modal-cancel').addEventListener('click', closeModal);
+  const clearBtn = $('#modal-schedule-clear');
+  if (clearBtn) clearBtn.addEventListener('click', async () => { await saveFeedbackSchedule(personId, null); closeModal(); await refreshAndRender(); });
+  $('#modal-save').addEventListener('click', async () => {
+    const btn = $('#modal-save'); btn.disabled = true; btn.textContent = 'Salvando...';
+    const date = $('#modal-schedule-date').value;
+    if (!date) { $('#modal-schedule-error').textContent = 'Escolha uma data.'; btn.disabled = false; btn.textContent = 'Salvar'; return; }
+    try {
+      await saveFeedbackSchedule(personId, date);
+      closeModal();
+      await refreshAndRender();
+    } catch (err) {
+      $('#modal-schedule-error').textContent = err.message || 'Erro ao salvar.';
+      btn.disabled = false; btn.textContent = 'Salvar';
+    }
+  });
+}
+
+async function saveFeedbackSchedule(personId, date) {
+  const cycle = currentCycle();
+  const existing = state.feedbacks.find(f => f.person_id === personId);
+  const payload = {
+    cycle_id: cycle.id, person_id: personId,
+    status: existing ? existing.status : 'pendente',
+    completed_at: existing ? existing.completed_at : null,
+    scheduled_at: date,
+    updated_by: state.profile.id, updated_at: new Date().toISOString()
+  };
+  const { error } = await sb.from('feedbacks').upsert(payload, { onConflict: 'cycle_id,person_id' });
+  if (error) throw new Error(error.message);
 }
 
 async function toggleFeedback(personId) {
