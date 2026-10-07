@@ -201,6 +201,70 @@ function renderTopBar() {
   $('#user-role').textContent = state.profile.role === 'master' ? 'Administrador' : 'Colaborador';
   $('#user-role').className = 'role-badge ' + (state.profile.role === 'master' ? 'role-master' : 'role-colab');
   $('#tab-admin-btn').style.display = state.profile.role === 'master' ? '' : 'none';
+  renderMyAvatar();
+}
+
+function renderMyAvatar() {
+  const holder = $('#my-avatar-img');
+  if (!holder) return;
+  const url = state.profile.avatar_url;
+  const initial = (state.profile.full_name || '?')[0].toUpperCase();
+  holder.innerHTML = url ? `<img src="${escapeAttr(url)}" alt="">` : escapeHtml(initial);
+}
+
+function initMyAvatar() {
+  const btn = $('#my-avatar-btn');
+  if (!btn) return;
+  btn.addEventListener('click', openAvatarModal);
+}
+
+function openAvatarModal() {
+  const url = state.profile.avatar_url;
+  const body = `
+    <h3>Minha foto</h3>
+    <div id="avatar-preview">${url ? `<img src="${escapeAttr(url)}" alt="">` : escapeHtml((state.profile.full_name || '?')[0].toUpperCase())}</div>
+    <label>Escolha uma imagem (PNG, JPG ou WEBP, até 3 MB)</label>
+    <input type="file" id="modal-avatar-file" accept=".png,.jpg,.jpeg,.webp">
+    <p id="modal-avatar-error" class="form-error"></p>
+    <div class="modal-actions">
+      <button type="button" class="btn-secondary" id="modal-cancel">Cancelar</button>
+      <button type="button" class="btn-primary" id="modal-save">Salvar foto</button>
+    </div>
+  `;
+  openModal(body);
+  $('#modal-cancel').addEventListener('click', closeModal);
+  $('#modal-avatar-file').addEventListener('change', () => {
+    const file = $('#modal-avatar-file').files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => { $('#avatar-preview').innerHTML = `<img src="${reader.result}" alt="">`; };
+    reader.readAsDataURL(file);
+  });
+  $('#modal-save').addEventListener('click', async () => {
+    const file = $('#modal-avatar-file').files[0];
+    const errEl = $('#modal-avatar-error');
+    if (!file) { errEl.textContent = 'Escolha uma imagem primeiro.'; return; }
+    const btn = $('#modal-save'); btn.disabled = true; btn.textContent = 'Salvando...';
+    try {
+      const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+      const path = `${state.profile.id}/avatar-${Date.now()}.${ext}`;
+      const { error: upErr } = await sb.storage.from('avatars').upload(path, file, { upsert: true });
+      if (upErr) throw new Error('Falha no upload da foto: ' + upErr.message);
+      const { data: pub } = sb.storage.from('avatars').getPublicUrl(path);
+      const publicUrl = pub.publicUrl;
+      const { error: rpcErr } = await sb.rpc('set_my_avatar', { p_url: publicUrl });
+      if (rpcErr) throw new Error('Falha ao salvar a foto: ' + rpcErr.message);
+      state.profile.avatar_url = publicUrl;
+      const myPerson = state.people.find(p => p.id === state.profile.person_id);
+      if (myPerson) myPerson.avatar_url = publicUrl;
+      closeModal();
+      renderMyAvatar();
+      renderPeople();
+    } catch (err) {
+      errEl.textContent = err.message || 'Erro ao salvar a foto.';
+      btn.disabled = false; btn.textContent = 'Salvar foto';
+    }
+  });
 }
 
 // ------------------------------------------------------------
@@ -216,7 +280,8 @@ function renderCycleTabs() {
       <span class="cycle-year-label">${year}</span>
       ${byYear[year].map(c => `
         <button type="button" class="cycle-pill ${c.id === state.selectedCycleId ? 'active' : ''} status-${c.status}" data-cycle="${c.id}">
-          ${c.label}<small>${c.period_label}</small>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5" stroke="currentColor" stroke-width="1.8"/><path d="M3.5 9.5h17M8 3v4M16 3v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          <span class="cycle-pill-text">${c.label}<small>${c.period_label}</small></span>
         </button>
       `).join('')}
     </div>
@@ -289,7 +354,10 @@ function renderOverview() {
   if (coursePend.length) pend.push({ label: 'Cursos', detail: coursePend.map(p => p.name).join(' e '), count: coursePend.length });
 
   el.innerHTML = `
-    <div class="section-head"><h2>Visão geral</h2><p>${cycle.label} · ${cycle.period_label}</p></div>
+    <div class="section-head section-head-main">
+      <span class="icon-badge lg"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M4 20V10M11 20V4M18 20v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>
+      <div class="section-head-text"><h2>Visão geral</h2><p>${cycle.label} · ${cycle.period_label}</p></div>
+    </div>
     <div class="overview">
       <div class="surface progress">
         <span class="kicker">Andamento do ciclo</span>
@@ -339,21 +407,31 @@ function renderPeople() {
   const isMaster = state.profile.role === 'master';
 
   el.innerHTML = `
-    <div class="section-head"><h2>Acompanhamento por colaborador</h2><p>Cursos e feedbacks · ${cycle.label}</p></div>
+    <div class="section-head section-head-main">
+      <span class="icon-badge lg"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M16 11c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3Zm-8 0c1.66 0 3-1.34 3-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3Zm0 2c-2.67 0-8 1.34-8 4v2h10v-2c0-1.35.68-2.46 1.76-3.32C10.5 13.16 9.14 13 8 13Zm8 0c-.29 0-.62.02-.97.05C16.2 13.84 17 14.84 17 16v2h7v-2c0-2.66-5.33-4-8-4Z" fill="currentColor"/></svg></span>
+      <div class="section-head-text"><h2>Acompanhamento por colaborador</h2><p>Cursos e feedbacks · ${cycle.label}</p></div>
+    </div>
     <div class="people">
       ${state.people.map(p => {
         const course = state.courses.find(c => c.person_id === p.id);
         const feedback = state.feedbacks.find(f => f.person_id === p.id);
         const isSelf = state.profile.person_id === p.id;
         const canEditCourse = isMaster || isSelf;
+        const courseDone = course && course.status === 'concluido';
+        const feedbackDone = feedback && feedback.status === 'concluido';
+        const pct = (courseDone ? 50 : 0) + (feedbackDone ? 50 : 0);
+        const avatarInner = p.avatar_url
+          ? `<img src="${escapeAttr(p.avatar_url)}" alt="">`
+          : `<span class="avatar-fallback">${escapeHtml(p.name[0])}</span>`;
         return `
         <article class="surface person" data-person="${p.id}">
-          <div class="person-top"><div class="avatar">${p.name[0]}</div>
-            ${isMaster ? `<button class="icon-btn feedback-toggle" data-person="${p.id}" data-status="${feedback ? feedback.status : 'pendente'}">${feedback && feedback.status === 'concluido' ? '✓ Feedback ok' : 'Marcar feedback'}</button>` : ''}
+          <div class="person-top">
+            <div class="avatar-ring" style="--pct:${pct}">${avatarInner}<span class="avatar-pct">${pct}%</span></div>
+            ${isMaster ? `<button class="icon-btn feedback-toggle" data-person="${p.id}" data-status="${feedback ? feedback.status : 'pendente'}">${feedbackDone ? '✓ Feedback ok' : 'Marcar feedback'}</button>` : ''}
           </div>
           <h3>${escapeHtml(p.name)}</h3>
-          <div class="person-line"><span>Curso</span><b class="${course && course.status === 'concluido' ? '' : 'todo'}">${course && course.status === 'concluido' ? 'Concluído' : 'Pendente'}</b></div>
-          <div class="person-line"><span>Feedback</span><b class="${feedback && feedback.status === 'concluido' ? '' : 'todo'}">${feedback && feedback.status === 'concluido' ? 'Concluído' : 'Pendente'}</b></div>
+          <div class="person-line"><span>Curso</span><span class="status-pill ${courseDone ? 'ok' : 'pending'}">${courseDone ? 'Concluído' : 'Pendente'}</span></div>
+          <div class="person-line"><span>Feedback</span><span class="status-pill ${feedbackDone ? 'ok' : 'pending'}">${feedbackDone ? 'Concluído' : 'Pendente'}</span></div>
           ${course && course.course_name ? `<div class="course-name">📘 ${escapeHtml(course.course_name)}</div>` : ''}
           ${course && course.diploma_path ? `<button class="link-btn diploma-view" data-path="${course.diploma_path}">Ver diploma anexado</button>` : ''}
           ${canEditCourse ? `<button class="btn-small edit-course" data-person="${p.id}">${course && course.diploma_path ? 'Atualizar curso' : 'Registrar curso'}</button>` : ''}
@@ -450,7 +528,10 @@ function renderMonths() {
   const months = MONTHS_BY_CYCLE[cycle.cycle_number] || [];
 
   el.innerHTML = `
-    <div class="section-head"><h2>O trimestre, mês a mês</h2><p>RRs e PMS · ${cycle.label}</p></div>
+    <div class="section-head section-head-main">
+      <span class="icon-badge lg"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5" stroke="currentColor" stroke-width="1.8"/><path d="M3.5 9.5h17M8 3v4M16 3v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span>
+      <div class="section-head-text"><h2>O trimestre, mês a mês</h2><p>RRs e PMS · ${cycle.label}</p></div>
+    </div>
     <div class="months">
       ${months.map((label, i) => {
         const order = i + 1;
@@ -471,8 +552,8 @@ function renderMonths() {
 function monthBadge(table, order, row, isMaster) {
   const done = row && row.status === 'concluido';
   const text = done ? (table === 'rrs' ? 'Realizada' : 'Concluído') : 'Pendente';
-  if (!isMaster) return `<b class="${done ? '' : 'todo'}">${text}</b>`;
-  return `<button type="button" class="month-toggle btn-tiny ${done ? '' : 'todo'}" data-table="${table}" data-order="${order}">${text}</button>`;
+  if (!isMaster) return `<span class="status-pill ${done ? 'ok' : 'pending'}">${text}</span>`;
+  return `<button type="button" class="month-toggle btn-tiny status-pill ${done ? 'ok' : 'pending'}" data-table="${table}" data-order="${order}">${text}</button>`;
 }
 
 async function toggleMonth(table, order, label) {
@@ -495,7 +576,10 @@ async function toggleMonth(table, order, label) {
 function renderAbout() {
   const el = $('#panel-sobre');
   el.innerHTML = `
-    <div class="section-head"><h2>Sobre o Classe A</h2></div>
+    <div class="section-head section-head-main">
+      <span class="icon-badge lg"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="4.5" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="1.3" fill="currentColor"/></svg></span>
+      <div class="section-head-text"><h2>Sobre o Classe A</h2></div>
+    </div>
     <div class="explainer">
       <article class="surface explain-card">
         <h3>O que este acompanhamento mostra</h3>
@@ -522,7 +606,10 @@ function renderAdmin() {
   const el = $('#panel-admin');
   if (!el) return;
   el.innerHTML = `
-    <div class="section-head"><h2>Administração</h2><p>Aprovações, colaboradores e ciclos</p></div>
+    <div class="section-head section-head-main">
+      <span class="icon-badge lg"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M16 11c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3Zm-8 0c1.66 0 3-1.34 3-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3Zm0 2c-2.67 0-8 1.34-8 4v2h10v-2c0-1.35.68-2.46 1.76-3.32C10.5 13.16 9.14 13 8 13Zm8 0c-.29 0-.62.02-.97.05C16.2 13.84 17 14.84 17 16v2h7v-2c0-2.66-5.33-4-8-4Z" fill="currentColor"/></svg></span>
+      <div class="section-head-text"><h2>Administração</h2><p>Aprovações, colaboradores e ciclos</p></div>
+    </div>
 
     <div class="surface admin-block">
       <h3>Solicitações de acesso pendentes</h3>
@@ -553,10 +640,15 @@ function renderAdmin() {
       <div class="admin-list">
         ${state.people.map(p => `<span class="chip">${escapeHtml(p.name)}</span>`).join('')}
       </div>
-      <form id="add-person-form" class="inline-form">
-        <input type="text" id="new-person-name" placeholder="Nome do novo colaborador" required>
+      <form id="add-person-form" class="inline-form add-person-row">
+        <input type="text" id="new-person-name" placeholder="Nome da pessoa" required>
+        <select id="new-person-type">
+          <option value="colaborador">Funcionário (aparece no acompanhamento)</option>
+          <option value="master">Máster (acesso administrativo, não aparece aqui)</option>
+        </select>
         <button type="submit" class="btn-small">Adicionar</button>
       </form>
+      <p class="master-hint" id="new-person-hint" style="display:none">Esta pessoa será cadastrada como <b>Máster</b>: ela não entra na lista de colaboradores acompanhados. Para dar acesso de login a ela, crie a conta pelo cadastro normal e aprove-a em "Solicitações de acesso" escolhendo o nível Máster — ou ajuste o nível dela em "Usuários e permissões" caso já tenha uma conta.</p>
     </div>
 
     <div class="surface admin-block">
@@ -574,10 +666,21 @@ function renderAdmin() {
     syncPersonVisibility();
     sel.addEventListener('change', syncPersonVisibility);
   });
+  $('#new-person-type', el).addEventListener('change', (e) => {
+    $('#new-person-hint').style.display = e.target.value === 'master' ? '' : 'none';
+  });
   $('#add-person-form', el).addEventListener('submit', async (e) => {
     e.preventDefault();
     const name = $('#new-person-name').value.trim();
+    const type = $('#new-person-type').value;
     if (!name) return;
+    if (type === 'master') {
+      // Máster não é um colaborador acompanhado: não criamos linha em "people".
+      // O acesso dela é concedido normalmente (cadastro + aprovação, ou ajuste
+      // de nível em "Usuários e permissões"); o aviso acima explica o caminho.
+      $('#new-person-hint').style.display = '';
+      return;
+    }
     const { data: newPerson, error } = await sb.from('people').insert({ name }).select().single();
     if (error) { alert('Erro ao adicionar colaborador: ' + error.message); return; }
     // Garante que já exista um "slot" de curso e de feedback em todos os ciclos
@@ -633,7 +736,10 @@ async function loadProfilesList() {
   if (!el) return;
   el.innerHTML = (profiles || []).map(p => `
     <div class="profile-row">
-      <div><strong>${escapeHtml(p.full_name)}</strong>${p.people ? `<small> · ${escapeHtml(p.people.name)}</small>` : ''}</div>
+      <div class="profile-row-main">
+        <span class="avatar-mini">${p.avatar_url ? `<img src="${escapeAttr(p.avatar_url)}" alt="">` : escapeHtml((p.full_name || '?')[0])}</span>
+        <div><strong>${escapeHtml(p.full_name)}</strong>${p.people ? `<small> · ${escapeHtml(p.people.name)}</small>` : ''}</div>
+      </div>
       <select class="role-select" data-id="${p.id}" ${p.id === state.profile.id ? 'disabled title="Você não pode alterar seu próprio nível"' : ''}>
         <option value="colaborador" ${p.role === 'colaborador' ? 'selected' : ''}>Colaborador</option>
         <option value="master" ${p.role === 'master' ? 'selected' : ''}>Máster</option>
@@ -754,6 +860,7 @@ document.addEventListener('DOMContentLoaded', () => {
   sb = window.supabase.createClient(window.SUPABASE_CONFIG.url, window.SUPABASE_CONFIG.anonKey);
   initAuthForm();
   initMainTabs();
+  initMyAvatar();
   $('#logout-btn').addEventListener('click', () => sb.auth.signOut());
   $('#pending-logout').addEventListener('click', () => sb.auth.signOut());
   $('#modal-backdrop').addEventListener('click', (e) => { if (e.target.id === 'modal-backdrop') closeModal(); });
