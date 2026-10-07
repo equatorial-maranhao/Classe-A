@@ -831,10 +831,13 @@ async function loadProfilesList() {
         <span class="avatar-mini">${p.avatar_url ? `<img src="${escapeAttr(p.avatar_url)}" alt="">` : escapeHtml((p.full_name || '?')[0])}</span>
         <div><strong>${escapeHtml(p.full_name)}</strong>${p.people ? `<small> · ${escapeHtml(p.people.name)}</small>` : ''}<span class="role-pill-badge">${p.role === 'master' ? 'Máster' : 'Colaborador'}</span></div>
       </div>
-      <select class="role-select" data-id="${p.id}" ${p.id === state.profile.id ? 'disabled title="Você não pode alterar seu próprio nível"' : ''}>
-        <option value="colaborador" ${p.role === 'colaborador' ? 'selected' : ''}>Colaborador</option>
-        <option value="master" ${p.role === 'master' ? 'selected' : ''}>Máster</option>
-      </select>
+      <div class="profile-row-actions">
+        <select class="role-select" data-id="${p.id}" ${p.id === state.profile.id ? 'disabled title="Você não pode alterar seu próprio nível"' : ''}>
+          <option value="colaborador" ${p.role === 'colaborador' ? 'selected' : ''}>Colaborador</option>
+          <option value="master" ${p.role === 'master' ? 'selected' : ''}>Máster</option>
+        </select>
+        ${p.id === state.profile.id ? '' : `<button type="button" class="icon-btn danger delete-profile" data-id="${p.id}" data-name="${escapeAttr(p.full_name)}" title="Excluir usuário"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 7h14M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2m-9 0 1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>`}
+      </div>
     </div>
   `).join('') + `<p class="hint">${masters} usuário(s) máster no momento. O combinado é até 3.</p>`;
 
@@ -847,6 +850,18 @@ async function loadProfilesList() {
     await sb.from('profiles').update({ role: newRole }).eq('id', sel.dataset.id);
     await loadProfilesList();
   }));
+
+  $$('.delete-profile', el).forEach(b => b.addEventListener('click', () => deleteProfile(b.dataset.id, b.dataset.name)));
+}
+
+async function deleteProfile(id, name) {
+  if (!confirm(`Excluir o acesso de "${name}"? Ela(e) perde o login imediatamente e deixa de aparecer em "Usuários e permissões". Isso não apaga a pessoa da lista de colaboradores, caso exista uma.`)) return;
+  const { error } = await sb.from('profiles').delete().eq('id', id);
+  if (error) { alert('Erro ao excluir usuário: ' + error.message); return; }
+  // Mantém o access_request coerente com o novo estado (evita a tela de
+  // "solicitação aprovada" reaparecer para quem perdeu o acesso).
+  await sb.from('access_requests').update({ status: 'rejeitado', reviewed_by: state.profile.id, reviewed_at: new Date().toISOString() }).eq('user_id', id).eq('status', 'aprovado');
+  await loadProfilesList();
 }
 
 // ------------------------------------------------------------

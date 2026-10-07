@@ -155,7 +155,9 @@ header{background:linear-gradient(160deg,#0d2a66,#1a4696);color:#fff;position:re
 .btn-tiny{background:#eaf0fb;color:#204c9c;border:none;border-radius:99px;padding:5px 10px;font-size:12px;font-weight:700}
 .btn-tiny.todo{background:#f0f2f7;color:#68758b}
 .btn-danger{background:#fbe9e9;color:#a4302f}
-.icon-btn{background:#eaf0fb;color:#204c9c;border:none;border-radius:99px;padding:6px 10px;font-size:11px;font-weight:700}
+.icon-btn{background:#eaf0fb;color:#204c9c;border:none;border-radius:99px;padding:6px 10px;font-size:11px;font-weight:700;display:inline-flex;align-items:center;justify-content:center}
+.icon-btn.danger{background:#fbe9e9;color:#a4302f}
+.profile-row-actions{display:flex;align-items:center;gap:8px;flex:none}
 
 /* ---------- Forms / modal ---------- */
 label{display:block;font-size:12px;font-weight:700;color:#4a5f83;margin:14px 0 5px}
