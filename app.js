@@ -74,8 +74,14 @@ async function boot() {
   try {
     const { data: { session } } = await sb.auth.getSession();
     state.session = session;
-    sb.auth.onAuthStateChange((_event, newSession) => {
+    sb.auth.onAuthStateChange((event, newSession) => {
+      // O Supabase dispara esse evento toda vez que a aba volta a ficar em
+      // foco (ex: trocou de app e voltou) para renovar o token, mesmo que
+      // seja o mesmo usuário já logado. Sem esse filtro, a tela inteira
+      // voltava pro loading e recarregava tudo de novo só por causa disso.
+      const sameUser = state.session && newSession && state.session.user.id === newSession.user.id;
       state.session = newSession;
+      if (sameUser && state.profile && event !== 'SIGNED_OUT') return;
       route();
     });
     route();
