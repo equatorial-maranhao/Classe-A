@@ -15,6 +15,23 @@ const MONTHS_BY_CYCLE = {
 };
 const PERIOD_BY_CYCLE = { 1: 'Jan–Mar', 2: 'Abr–Jun', 3: 'Jul–Set', 4: 'Out–Dez' };
 
+// Ícone + cor de cada frente de acompanhamento, usados em "Visão geral", "Foco
+// até o fim do ciclo" e nos anéis de progresso dos colaboradores.
+const TYPE_META = {
+  Cursos: { variant: 'amber', svg: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 3 2 8l10 5 8-4.3V15" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M6 10.5V16c0 1.4 2.7 3 6 3s6-1.6 6-3v-5.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>', color: '#b8780a' },
+  Feedbacks: { variant: 'blue', svg: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M4 5h16v11H8l-4 4V5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>', color: '#2862c4' },
+  RRs: { variant: 'green', svg: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M16 11c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3Zm-8 0c1.66 0 3-1.34 3-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3Zm0 2c-2.67 0-8 1.34-8 4v2h10v-2c0-1.35.68-2.46 1.76-3.32C10.5 13.16 9.14 13 8 13Zm8 0c-.29 0-.62.02-.97.05C16.2 13.84 17 14.84 17 16v2h7v-2c0-2.66-5.33-4-8-4Z" fill="currentColor"/></svg>', color: '#1b9e4e' },
+  PMS: { variant: 'purple', svg: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M4 20V10M11 20V4M18 20v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>', color: '#7a3fd1' }
+};
+// Cores do anel de avatar, sorteadas por pessoa a partir do nome (resultado
+// estável) para variar como no mockup.
+const AVATAR_RING_COLORS = ['#2862c4', '#1b9e4e', '#7a3fd1', '#c23b82', '#128a7d', '#b8780a'];
+function avatarColorFor(name) {
+  let h = 0;
+  for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) >>> 0;
+  return AVATAR_RING_COLORS[h % AVATAR_RING_COLORS.length];
+}
+
 const state = {
   session: null,
   profile: null,
@@ -198,9 +215,13 @@ async function refreshAndRender() {
 // ------------------------------------------------------------
 function renderTopBar() {
   $('#user-name').textContent = state.profile.full_name;
-  $('#user-role').textContent = state.profile.role === 'master' ? 'Administrador' : 'Colaborador';
-  $('#user-role').className = 'role-badge ' + (state.profile.role === 'master' ? 'role-master' : 'role-colab');
-  $('#tab-admin-btn').style.display = state.profile.role === 'master' ? '' : 'none';
+  const isMaster = state.profile.role === 'master';
+  const roleIcon = isMaster
+    ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.6 6.6L22 9.3l-5.4 4.6L18.2 21 12 17l-6.2 4 1.6-7.1L2 9.3l7.4-.7L12 2Z"/></svg>'
+    : '<svg width="12" height="12" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3.4" stroke="currentColor" stroke-width="1.8"/><path d="M5 20c1.2-4 4-6 7-6s5.8 2 7 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
+  $('#user-role').innerHTML = roleIcon + (isMaster ? 'Administrador' : 'Colaborador');
+  $('#user-role').className = 'role-badge ' + (isMaster ? 'role-master' : 'role-colab');
+  $('#tab-admin-btn').style.display = isMaster ? '' : 'none';
   renderMyAvatar();
 }
 
@@ -280,12 +301,13 @@ function renderCycleTabs() {
       <span class="cycle-year-label">${year}</span>
       ${byYear[year].map(c => `
         <button type="button" class="cycle-pill ${c.id === state.selectedCycleId ? 'active' : ''} status-${c.status}" data-cycle="${c.id}">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5" stroke="currentColor" stroke-width="1.8"/><path d="M3.5 9.5h17M8 3v4M16 3v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          <span class="cycle-pill-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5" stroke="currentColor" stroke-width="1.8"/><path d="M3.5 9.5h17M8 3v4M16 3v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span>
           <span class="cycle-pill-text">${c.label}<small>${c.period_label}</small></span>
+          <svg class="chevron" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
       `).join('')}
     </div>
-  `).join('') + (state.profile.role === 'master' ? `<button type="button" id="add-cycle-btn" class="cycle-pill add">+ Novo ciclo</button>` : '');
+  `).join('') + (state.profile.role === 'master' ? `<button type="button" id="add-cycle-btn" class="cycle-pill add"><span class="cycle-pill-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span class="cycle-pill-text">Novo ciclo</span><svg class="chevron" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>` : '');
 
   $$('.cycle-pill[data-cycle]', wrap).forEach(btn => {
     btn.addEventListener('click', async () => {
@@ -354,9 +376,12 @@ function renderOverview() {
   if (coursePend.length) pend.push({ label: 'Cursos', detail: coursePend.map(p => p.name).join(' e '), count: coursePend.length });
 
   el.innerHTML = `
-    <div class="section-head section-head-main">
-      <span class="icon-badge lg"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M4 20V10M11 20V4M18 20v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>
-      <div class="section-head-text"><h2>Visão geral</h2><p>${cycle.label} · ${cycle.period_label}</p></div>
+    <div class="section-head-row">
+      <div class="section-head-main">
+        <span class="icon-badge lg blue"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="1.8"/><circle cx="11" cy="11" r="4" stroke="currentColor" stroke-width="1.8"/><circle cx="11" cy="11" r="1" fill="currentColor"/><path d="M15 3l4 2-1 4.3-4.3 1.2L13 6l2-3Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></span>
+        <div class="section-head-text"><h2>Andamento do ciclo</h2><p>Acompanhe o progresso das entregas e o percentual concluído.</p></div>
+      </div>
+      <span class="section-pill"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5" stroke="currentColor" stroke-width="1.8"/><path d="M3.5 9.5h17M8 3v4M16 3v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>${cycle.label} · ${cycle.period_label}</span>
     </div>
     <div class="overview">
       <div class="surface progress">
@@ -368,8 +393,11 @@ function renderOverview() {
       <div class="surface priority">
         <h3>Foco até o fim do ciclo</h3>
         ${pend.length ? pend.map(p => `
-          <div class="priority-row"><div><strong>${p.label}</strong><small>${escapeHtml(p.detail)}</small></div><span class="badge">${p.count} pendente${p.count > 1 ? 's' : ''}</span></div>
-        `).join('') : '<p class="empty">Tudo em dia por aqui 🎉</p>'}
+          <div class="priority-row">
+            <div class="priority-row-main"><span class="icon-badge ${TYPE_META[p.label].variant}">${TYPE_META[p.label].svg}</span><div><strong>${p.label}</strong><small>${escapeHtml(p.detail)}</small></div></div>
+            <span class="badge">${p.count} pendente${p.count > 1 ? 's' : ''}</span>
+          </div>
+        `).join('') : '<p class="empty section-pill ok"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Tudo em dia</p>'}
       </div>
     </div>
     <div class="surface chart" style="margin-top:16px">
@@ -386,7 +414,8 @@ function renderOverview() {
 
 function chartLine(label, done, total) {
   const pct = total ? (done / total) * 100 : 0;
-  return `<div class="chart-line"><b>${label}</b><div class="bar"><span style="width:${pct}%;background:${progressColor(pct)}"></span></div><span class="value">${Math.round(pct)}%</span></div>`;
+  const meta = TYPE_META[label];
+  return `<div class="chart-line"><span class="chart-line-label"><span class="icon-badge sm ${meta.variant}">${meta.svg}</span><b>${label}</b></span><div class="bar"><span style="width:${pct}%;background:${progressColor(pct)}"></span></div><span class="value">${Math.round(pct)}%</span></div>`;
 }
 
 // Retorna uma cor num degrade de vermelho (0%) até verde (100%), passando por
@@ -407,9 +436,12 @@ function renderPeople() {
   const isMaster = state.profile.role === 'master';
 
   el.innerHTML = `
-    <div class="section-head section-head-main">
-      <span class="icon-badge lg"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M16 11c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3Zm-8 0c1.66 0 3-1.34 3-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3Zm0 2c-2.67 0-8 1.34-8 4v2h10v-2c0-1.35.68-2.46 1.76-3.32C10.5 13.16 9.14 13 8 13Zm8 0c-.29 0-.62.02-.97.05C16.2 13.84 17 14.84 17 16v2h7v-2c0-2.66-5.33-4-8-4Z" fill="currentColor"/></svg></span>
-      <div class="section-head-text"><h2>Acompanhamento por colaborador</h2><p>Cursos e feedbacks · ${cycle.label}</p></div>
+    <div class="section-head-row">
+      <div class="section-head-main">
+        <span class="icon-badge lg blue"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M16 11c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3Zm-8 0c1.66 0 3-1.34 3-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3Zm0 2c-2.67 0-8 1.34-8 4v2h10v-2c0-1.35.68-2.46 1.76-3.32C10.5 13.16 9.14 13 8 13Zm8 0c-.29 0-.62.02-.97.05C16.2 13.84 17 14.84 17 16v2h7v-2c0-2.66-5.33-4-8-4Z" fill="currentColor"/></svg></span>
+        <div class="section-head-text"><h2>Acompanhamento por colaborador</h2><p>Acompanhe o progresso de cada colaborador no ciclo atual.</p></div>
+      </div>
+      <span class="section-pill"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M4 20V10M11 20V4M18 20v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Cursos e feedbacks · ${cycle.label}</span>
     </div>
     <div class="people">
       ${state.people.map(p => {
@@ -420,21 +452,22 @@ function renderPeople() {
         const courseDone = course && course.status === 'concluido';
         const feedbackDone = feedback && feedback.status === 'concluido';
         const pct = (courseDone ? 50 : 0) + (feedbackDone ? 50 : 0);
+        const ringColor = avatarColorFor(p.name);
         const avatarInner = p.avatar_url
           ? `<img src="${escapeAttr(p.avatar_url)}" alt="">`
           : `<span class="avatar-fallback">${escapeHtml(p.name[0])}</span>`;
         return `
         <article class="surface person" data-person="${p.id}">
           <div class="person-top">
-            <div class="avatar-ring" style="--pct:${pct}">${avatarInner}<span class="avatar-pct">${pct}%</span></div>
-            ${isMaster ? `<button class="icon-btn feedback-toggle" data-person="${p.id}" data-status="${feedback ? feedback.status : 'pendente'}">${feedbackDone ? '✓ Feedback ok' : 'Marcar feedback'}</button>` : ''}
+            <div class="avatar-ring" style="--pct:${pct};--ring-color:${ringColor}">${avatarInner}<span class="avatar-pct">${pct}%</span></div>
           </div>
           <h3>${escapeHtml(p.name)}</h3>
           <div class="person-line"><span>Curso</span><span class="status-pill ${courseDone ? 'ok' : 'pending'}">${courseDone ? 'Concluído' : 'Pendente'}</span></div>
           <div class="person-line"><span>Feedback</span><span class="status-pill ${feedbackDone ? 'ok' : 'pending'}">${feedbackDone ? 'Concluído' : 'Pendente'}</span></div>
           ${course && course.course_name ? `<div class="course-name">📘 ${escapeHtml(course.course_name)}</div>` : ''}
           ${course && course.diploma_path ? `<button class="link-btn diploma-view" data-path="${course.diploma_path}">Ver diploma anexado</button>` : ''}
-          ${canEditCourse ? `<button class="btn-small edit-course" data-person="${p.id}">${course && course.diploma_path ? 'Atualizar curso' : 'Registrar curso'}</button>` : ''}
+          ${isMaster ? `<div class="person-feedback-row"><button class="pill-btn feedback-toggle" data-person="${p.id}" data-status="${feedback ? feedback.status : 'pendente'}">${feedbackDone ? '✓ Feedback ok' : 'Marcar feedback'}</button></div>` : ''}
+          ${canEditCourse ? `<button class="pill-btn light edit-course" data-person="${p.id}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M4 5h16v11H8l-4 4V5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>${course && course.diploma_path ? 'Atualizar curso' : 'Registrar curso'}<svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>` : ''}
         </article>`;
       }).join('')}
     </div>
@@ -528,18 +561,27 @@ function renderMonths() {
   const months = MONTHS_BY_CYCLE[cycle.cycle_number] || [];
 
   el.innerHTML = `
-    <div class="section-head section-head-main">
-      <span class="icon-badge lg"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5" stroke="currentColor" stroke-width="1.8"/><path d="M3.5 9.5h17M8 3v4M16 3v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span>
-      <div class="section-head-text"><h2>O trimestre, mês a mês</h2><p>RRs e PMS · ${cycle.label}</p></div>
+    <div class="section-head-row">
+      <div class="section-head-main">
+        <span class="icon-badge lg blue"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5" stroke="currentColor" stroke-width="1.8"/><path d="M3.5 9.5h17M8 3v4M16 3v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span>
+        <div class="section-head-text"><h2>O trimestre, mês a mês</h2><p>Acompanhe o progresso das metas e resultados de cada mês do ciclo.</p></div>
+      </div>
+      <span class="section-pill"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M4 20V10M11 20V4M18 20v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>RRs e PMS · ${cycle.label}</span>
     </div>
     <div class="months">
       ${months.map((label, i) => {
         const order = i + 1;
         const rr = state.rrs.find(r => r.month_order === order);
         const pm = state.pms.find(r => r.month_order === order);
+        const rrDone = rr && rr.status === 'concluido', pmDone = pm && pm.status === 'concluido';
+        const donePct = (rrDone ? 50 : 0) + (pmDone ? 50 : 0);
+        const overall = donePct === 100 ? 'ok' : donePct > 0 ? 'progress' : 'pending';
+        const overallText = donePct === 100 ? 'Concluído' : donePct > 0 ? 'Em andamento' : 'Pendente';
+        const ringColor = donePct === 100 ? '#1b9e4e' : donePct > 0 ? '#2862c4' : '#b7c0d4';
         return `
         <article class="surface month">
-          <h3>${label}</h3>
+          <div class="month-head"><h3>${label}</h3><span class="status-pill ${overall}">${overallText}</span></div>
+          <div class="month-ring-wrap"><div class="ring" style="--pct:${donePct};--ring-color:${ringColor}"><b>${donePct}%</b></div></div>
           <div class="month-row"><span>RR</span>${monthBadge('rrs', order, rr, isMaster)}</div>
           <div class="month-row"><span>PMS</span>${monthBadge('pms', order, pm, isMaster)}</div>
         </article>`;
@@ -576,16 +618,21 @@ async function toggleMonth(table, order, label) {
 function renderAbout() {
   const el = $('#panel-sobre');
   el.innerHTML = `
-    <div class="section-head section-head-main">
-      <span class="icon-badge lg"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="4.5" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="1.3" fill="currentColor"/></svg></span>
-      <div class="section-head-text"><h2>Sobre o Classe A</h2></div>
+    <div class="section-head-row">
+      <div class="section-head-main">
+        <span class="icon-badge lg blue"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="4.5" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="1.3" fill="currentColor"/></svg></span>
+        <div class="section-head-text"><h2>Sobre o Classe A</h2><p>Informações e regras do ciclo.</p></div>
+      </div>
     </div>
     <div class="explainer">
       <article class="surface explain-card">
+        <span class="icon-badge blue"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M6 3h9l5 5v13H6V3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M15 3v5h5" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></span>
         <h3>O que este acompanhamento mostra</h3>
         <p>O Classe A é acompanhado em ciclos trimestrais. Cada ciclo reúne cursos da Universidade do Saber, feedbacks com os colaboradores, RRs e PMS. A visão reúne o status dessas frentes em um só lugar para facilitar o acompanhamento da equipe.</p>
+        <div class="note">Este painel mostra apenas o andamento informado pela equipe. Critérios de avaliação, pontuação e regras oficiais do Classe A devem ser consultados nos materiais internos do programa.</div>
       </article>
       <article class="surface explain-card">
+        <span class="icon-badge green"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><rect x="4" y="3" width="16" height="18" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M8.5 11.5l2 2 4.5-4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
         <h3>O que entra em cada ciclo</h3>
         <ul>
           <li>1 curso obrigatório por colaborador.</li>
@@ -595,7 +642,6 @@ function renderAbout() {
         </ul>
       </article>
     </div>
-    <div class="note">Este painel mostra apenas o andamento informado pela equipe. Critérios de avaliação, pontuação e regras oficiais do Classe A devem ser consultados nos materiais internos do programa.</div>
   `;
 }
 
@@ -606,13 +652,16 @@ function renderAdmin() {
   const el = $('#panel-admin');
   if (!el) return;
   el.innerHTML = `
-    <div class="section-head section-head-main">
-      <span class="icon-badge lg"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M16 11c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3Zm-8 0c1.66 0 3-1.34 3-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3Zm0 2c-2.67 0-8 1.34-8 4v2h10v-2c0-1.35.68-2.46 1.76-3.32C10.5 13.16 9.14 13 8 13Zm8 0c-.29 0-.62.02-.97.05C16.2 13.84 17 14.84 17 16v2h7v-2c0-2.66-5.33-4-8-4Z" fill="currentColor"/></svg></span>
-      <div class="section-head-text"><h2>Administração</h2><p>Aprovações, colaboradores e ciclos</p></div>
+    <div class="section-head-row">
+      <div class="section-head-main">
+        <span class="icon-badge lg purple"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M16 11c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3Zm-8 0c1.66 0 3-1.34 3-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3Zm0 2c-2.67 0-8 1.34-8 4v2h10v-2c0-1.35.68-2.46 1.76-3.32C10.5 13.16 9.14 13 8 13Zm8 0c-.29 0-.62.02-.97.05C16.2 13.84 17 14.84 17 16v2h7v-2c0-2.66-5.33-4-8-4Z" fill="currentColor"/></svg></span>
+        <div class="section-head-text"><h2>Administração</h2><p>Aprovações, colaboradores e ciclos</p></div>
+      </div>
+      <span class="section-pill">Agrupações, colaboradores e ciclos</span>
     </div>
 
     <div class="surface admin-block">
-      <h3>Solicitações de acesso pendentes</h3>
+      <h3><span class="icon-badge sm amber"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7l8-4Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg></span>Solicitações de acesso pendentes</h3>
       ${state.pendingRequests.length ? state.pendingRequests.map(r => `
         <div class="request-row" data-req="${r.id}">
           <div><strong>${escapeHtml(r.full_name)}</strong><small>${escapeHtml(r.email)}</small>${r.message ? `<small class="msg">"${escapeHtml(r.message)}"</small>` : ''}</div>
@@ -628,15 +677,15 @@ function renderAdmin() {
             </select>
           </div>
           <div class="request-actions">
-            <button type="button" class="btn-small approve-req">Aprovar</button>
-            <button type="button" class="btn-small btn-danger reject-req">Recusar</button>
+            <button type="button" class="pill-btn approve-req">Aprovar</button>
+            <button type="button" class="pill-btn light reject-req">Recusar</button>
           </div>
         </div>
-      `).join('') : '<p class="empty">Nenhuma solicitação pendente.</p>'}
+      `).join('') : '<p class="empty section-pill ok"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4.5 4.5L19 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Tudo em dia</p>'}
     </div>
 
     <div class="surface admin-block">
-      <h3>Colaboradores</h3>
+      <h3><span class="icon-badge sm green"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M16 11c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3Zm-8 0c1.66 0 3-1.34 3-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3Zm0 2c-2.67 0-8 1.34-8 4v2h10v-2c0-1.35.68-2.46 1.76-3.32C10.5 13.16 9.14 13 8 13Zm8 0c-.29 0-.62.02-.97.05C16.2 13.84 17 14.84 17 16v2h7v-2c0-2.66-5.33-4-8-4Z" fill="currentColor"/></svg></span>Colaboradores</h3>
       <div class="admin-list">
         ${state.people.map(p => `<span class="chip">${escapeHtml(p.name)}</span>`).join('')}
       </div>
@@ -646,13 +695,13 @@ function renderAdmin() {
           <option value="colaborador">Funcionário (aparece no acompanhamento)</option>
           <option value="master">Máster (acesso administrativo, não aparece aqui)</option>
         </select>
-        <button type="submit" class="btn-small">Adicionar</button>
+        <button type="submit" class="pill-btn">Adicionar</button>
       </form>
       <p class="master-hint" id="new-person-hint" style="display:none">Esta pessoa será cadastrada como <b>Máster</b>: ela não entra na lista de colaboradores acompanhados. Para dar acesso de login a ela, crie a conta pelo cadastro normal e aprove-a em "Solicitações de acesso" escolhendo o nível Máster — ou ajuste o nível dela em "Usuários e permissões" caso já tenha uma conta.</p>
     </div>
 
     <div class="surface admin-block">
-      <h3>Usuários e permissões</h3>
+      <h3><span class="icon-badge sm blue"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8.5" r="3.3" stroke="currentColor" stroke-width="1.7"/><path d="M5 20c0-3.5 3.1-6 7-6s7 2.5 7 6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></span>Usuários e permissões</h3>
       <div id="profiles-list">Carregando...</div>
     </div>
   `;

@@ -50,6 +50,7 @@ header{background:linear-gradient(160deg,#0d2a66,#1a4696);color:#fff;position:re
 .priority{padding:25px}
 .priority h3{font-size:18px;margin:0 0 15px}
 .priority-row{border-top:1px solid #e9edf5;padding:13px 0;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.priority-row-main{display:flex;align-items:center;gap:12px;min-width:0}
 .priority-row strong{font-size:15px}
 .priority-row small{display:block;color:#70819c;margin-top:3px}
 .badge{border-radius:99px;background:#eaf0fb;color:#204c9c;padding:7px 11px;font-weight:750;font-size:12px;white-space:nowrap}
@@ -58,31 +59,40 @@ header{background:linear-gradient(160deg,#0d2a66,#1a4696);color:#fff;position:re
 .chart-head h3{margin:0;font-size:19px}
 .chart-head p{margin:0;color:#657896;font-size:13px}
 .chart-lines{display:grid;gap:19px}
-.chart-line{display:grid;grid-template-columns:110px minmax(0,1fr) 50px;align-items:center;gap:17px}
+.chart-line{display:grid;grid-template-columns:150px minmax(0,1fr) 50px;align-items:center;gap:17px}
+.chart-line-label{display:flex;align-items:center;gap:10px}
 .chart-line b{font-size:14px}
 .chart-line .bar{height:14px;background:#e9eef7;border-radius:99px;overflow:hidden}
 .chart-line .bar span{display:block;height:100%;background:#2b60bd;border-radius:99px;transition:width .3s,background-color .3s}
 .chart-line .value{text-align:right;font-size:14px;font-weight:750;color:#24539f}
 
 /* ---------- Colaboradores ---------- */
-.people{display:grid;grid-template-columns:repeat(4,1fr);gap:13px}
-.person{padding:21px}
+.people{display:grid;grid-template-columns:repeat(5,1fr);gap:13px}
+.person{padding:22px 18px;text-align:center;position:relative}
 .avatar{width:37px;height:37px;background:#eaf0fb;border-radius:12px;display:grid;place-items:center;color:#2459aa;font-weight:800}
-.person-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
-.person h3{font-size:17px;margin:6px 0 10px}
-.person-line{display:flex;justify-content:space-between;padding:9px 0;border-top:1px solid #edf0f6;font-size:14px}
+.person-top{display:flex;align-items:center;justify-content:center;margin-bottom:12px}
+.person-feedback-row{display:flex;justify-content:center;margin-top:8px}
+.person h3{font-size:17px;margin:2px 0 14px;text-align:center}
+.person-line{display:flex;justify-content:space-between;padding:9px 0;border-top:1px solid #edf0f6;font-size:14px;text-align:left}
 .person-line b{font-size:13px;color:#2459aa}
 .person-line b.todo{color:#7b879b}
-.course-name{font-size:13px;color:#3a557f;margin-top:8px}
+.course-name{font-size:13px;color:#3a557f;margin-top:8px;text-align:left}
+.person .diploma-view{display:block;width:100%;text-align:center;margin-top:6px}
+.person .pill-btn{width:100%;justify-content:center;margin-top:10px}
+.person-feedback-row .pill-btn{background:#fff4de;color:#9a6a00;box-shadow:0 1px 4px #10306b1a}
+.person-feedback-row .pill-btn[data-status="concluido"]{background:#e4f6ea;color:#1b9e4e}
 
 /* ---------- Por mês ---------- */
 .months{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}
 .month{padding:22px}
-.month h3{margin:0 0 16px;font-size:19px}
+.month-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:18px}
+.month-head h3{margin:0;font-size:19px}
+.month-ring-wrap{display:flex;justify-content:center;margin-bottom:6px}
 .month-row{border-top:1px solid #edf0f6;display:flex;justify-content:space-between;align-items:center;padding:12px 0;font-size:14px}
 .month-row:last-child{padding-bottom:0}
 .month-row b{color:#2459aa}
 .month-row b.todo{color:#7b879b}
+.month-detail-link{display:flex;align-items:center;gap:6px;color:#2862c4;font-size:13px;font-weight:700;background:none;border:none;padding:14px 0 0;width:100%;justify-content:center}
 
 /* ---------- Sobre ---------- */
 .explainer{display:grid;grid-template-columns:1fr 1fr;gap:16px}
@@ -99,13 +109,16 @@ header{background:linear-gradient(160deg,#0d2a66,#1a4696);color:#fff;position:re
 .cycle-year-label{color:#9db6e8;font-size:11px;font-weight:750;letter-spacing:.08em}
 .cycle-year-group{display:flex;gap:8px;align-items:center}
 .cycle-year-group .cycle-year-label{margin-right:2px}
-.cycle-pill{background:#1c3f83;color:#dce6fb;border:1px solid #2c519e;border-radius:12px;padding:8px 13px;font-size:13px;font-weight:650;display:flex;flex-direction:row;align-items:center;gap:8px}
-.cycle-pill .cycle-pill-text{display:flex;flex-direction:column;align-items:flex-start;gap:2px}
-.cycle-pill svg{flex:none;opacity:.85}
+.cycle-pill{background:#1c3f83;color:#dce6fb;border:1px solid #2c519e;border-radius:99px;padding:9px 14px;font-size:13px;font-weight:650;display:flex;flex-direction:row;align-items:center;gap:10px}
+.cycle-pill .cycle-pill-icon{width:24px;height:24px;border-radius:50%;background:#ffffff1f;display:grid;place-items:center;flex:none}
+.cycle-pill .cycle-pill-text{display:flex;flex-direction:column;align-items:flex-start;gap:1px}
+.cycle-pill svg{flex:none;opacity:.9}
 .cycle-pill small{font-weight:500;color:#a9c0ee;font-size:11px}
-.cycle-pill.active{background:#fff;color:#102f71}
+.cycle-pill .chevron{opacity:.6;margin-left:2px}
+.cycle-pill.active{background:#fff;color:#102f71;border-color:#fff}
+.cycle-pill.active .cycle-pill-icon{background:#eaf1fd}
 .cycle-pill.active small{color:#3a5fa8}
-.cycle-pill.status-planejado{opacity:.65}
+.cycle-pill.status-planejado{opacity:.7}
 .cycle-pill.add{background:transparent;border-style:dashed}
 
 /* ---------- Main nav (abas de conteúdo) ---------- */
@@ -117,7 +130,7 @@ header{background:linear-gradient(160deg,#0d2a66,#1a4696);color:#fff;position:re
 /* ---------- User box ---------- */
 .user-box{display:flex;align-items:center;gap:12px;font-size:14px}
 .user-name{font-weight:650}
-.role-badge{font-size:11px;font-weight:750;padding:4px 9px;border-radius:99px;letter-spacing:.03em}
+.role-badge{font-size:11px;font-weight:750;padding:5px 11px 5px 9px;border-radius:99px;letter-spacing:.03em;display:inline-flex;align-items:center;gap:5px}
 .role-badge.role-master{background:#ffce7a;color:#5c3a00}
 .role-badge.role-colab{background:#bcd2f9;color:#173a72}
 .link-btn{background:none;border:none;color:#a9c0ee;text-decoration:underline;font-size:13px;padding:0}
@@ -160,7 +173,7 @@ input[type=text],input[type=email],input[type=password],input[type=number],input
 
 /* ---------- Admin ---------- */
 .admin-block{padding:22px;margin-bottom:16px}
-.admin-block h3{margin:0 0 14px;font-size:17px}
+.admin-block h3{margin:0 0 14px;font-size:17px;display:flex;align-items:center;gap:10px}
 .request-row{display:grid;grid-template-columns:1.4fr 1fr auto;gap:12px;align-items:center;border-top:1px solid #edf0f6;padding:12px 0}
 .request-row:first-child{border-top:none}
 .request-row small{display:block;color:#70819c;font-size:12px}
@@ -175,6 +188,9 @@ input[type=text],input[type=email],input[type=password],input[type=number],input
 .role-select{width:auto}
 
 /* ---------- Responsive ---------- */
+@media(max-width:1020px){
+  .people{grid-template-columns:repeat(3,1fr)}
+}
 @media(max-width:900px){
   .overview,.explainer{grid-template-columns:1fr}
   .people{grid-template-columns:repeat(2,1fr)}
@@ -187,35 +203,60 @@ input[type=text],input[type=email],input[type=password],input[type=number],input
   .masthead h1{font-size:40px}
 }
 
+/* ---------- Fundo decorativo (pontos) no rodape da pagina ---------- */
+.main{position:relative}
+.page-deco{position:fixed;left:0;bottom:0;width:220px;height:200px;pointer-events:none;z-index:-1;
+  background-image:radial-gradient(#1c3f8322 1.6px,transparent 1.6px);
+  background-size:16px 16px;
+  -webkit-mask-image:radial-gradient(200px 180px at 0% 100%, #000 55%, transparent 100%);
+  mask-image:radial-gradient(200px 180px at 0% 100%, #000 55%, transparent 100%)}
+
 /* ---------- Section head with icon badge ---------- */
 .section-head{align-items:center}
 .section-head-main{display:flex;align-items:center;gap:13px}
-.icon-badge{width:40px;height:40px;border-radius:12px;background:#eaf0fb;color:#2459aa;display:grid;place-items:center;flex:none}
-.icon-badge.lg{width:46px;height:46px}
-.section-head-text h2{font-size:22px;letter-spacing:-.03em;margin:0}
+.icon-badge{width:40px;height:40px;border-radius:50%;background:#e4edfb;color:#2459aa;display:grid;place-items:center;flex:none}
+.icon-badge.lg{width:52px;height:52px}
+.icon-badge.sm{width:30px;height:30px}
+.icon-badge.blue{background:#e1ecfd;color:#2862c4}
+.icon-badge.green{background:#dff5e8;color:#1b9e4e}
+.icon-badge.purple{background:#ece3fb;color:#7a3fd1}
+.icon-badge.amber{background:#fdf0da;color:#b8780a}
+.icon-badge.teal{background:#dcf4f2;color:#128a7d}
+.icon-badge.pink{background:#fbe3ee;color:#c23b82}
+.section-head-text h2{font-size:24px;letter-spacing:-.03em;margin:0}
 .section-head-text p{margin:2px 0 0;color:#637494;font-size:13.5px}
-.section-pill{background:#eef2fb;color:#2b4e8c;border-radius:99px;padding:7px 13px;font-size:12.5px;font-weight:700;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.section-pill{background:#eef2fb;color:#2b4e8c;border-radius:99px;padding:7px 13px 7px 15px;font-size:12.5px;font-weight:700;display:inline-flex;align-items:center;gap:7px;white-space:nowrap;border:none}
+.section-pill svg{flex:none}
+.section-pill.ok{background:#e4f6ea;color:#1b7a3d}
+.section-head-row{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:17px}
 
 /* ---------- Status pills (com icone) ---------- */
-.status-pill{display:inline-flex;align-items:center;gap:5px;border-radius:99px;padding:5px 10px;font-size:11.5px;font-weight:750}
-.status-pill.ok{background:#e4f6ea;color:#1b7a3d}
-.status-pill.progress{background:#e4edfb;color:#2459aa}
-.status-pill.pending{background:#f0f2f7;color:#68758b}
+.status-pill{display:inline-flex;align-items:center;gap:6px;border-radius:99px;padding:5px 11px;font-size:11.5px;font-weight:750}
+.status-pill::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor;flex:none}
+.status-pill.ok{background:#e4f6ea;color:#1b9e4e}
+.status-pill.progress{background:#e4edfb;color:#2862c4}
+.status-pill.pending{background:#f0f2f7;color:#8591a6}
+
+/* ---------- Pill button com seta (chevron) ---------- */
+.pill-btn{display:inline-flex;align-items:center;gap:7px;background:#eaf1fd;color:#2459aa;border:none;border-radius:99px;padding:9px 14px;font-size:13px;font-weight:700;white-space:nowrap}
+.pill-btn svg{flex:none;transition:transform .15s}
+.pill-btn:hover svg{transform:translateX(2px)}
+.pill-btn.light{background:#fff;color:#2459aa;box-shadow:0 1px 4px #10306b1a}
 
 /* ---------- Ring / progresso radial ---------- */
-.ring{width:72px;height:72px;border-radius:50%;flex:none;display:grid;place-items:center;position:relative;
+.ring{width:76px;height:76px;border-radius:50%;flex:none;display:grid;place-items:center;position:relative;
   background:conic-gradient(var(--ring-color,#2862c4) calc(var(--pct,0) * 1%), #e8eef8 0)}
-.ring::before{content:'';position:absolute;inset:7px;background:#fff;border-radius:50%}
-.ring b{position:relative;font-size:15px;letter-spacing:-.03em;color:#172c52}
+.ring::before{content:'';position:absolute;inset:8px;background:#fff;border-radius:50%}
+.ring b{position:relative;font-size:16px;letter-spacing:-.03em;color:#172c52}
 .ring.sm{width:52px;height:52px}
 .ring.sm::before{inset:5px}
 .ring.sm b{font-size:12px}
 
 /* ---------- Avatar com anel de progresso + upload ---------- */
-.avatar-ring{width:60px;height:60px;border-radius:50%;flex:none;position:relative;padding:3px;
+.avatar-ring{width:88px;height:88px;border-radius:50%;flex:none;position:relative;padding:4px;margin:0 auto;
   background:conic-gradient(var(--ring-color,#2862c4) calc(var(--pct,0) * 1%), #e5eaf3 0)}
-.avatar-ring img,.avatar-ring .avatar-fallback{width:100%;height:100%;border-radius:50%;object-fit:cover;display:grid;place-items:center;background:#eaf0fb;color:#2459aa;font-weight:800;font-size:19px}
-.avatar-pct{position:absolute;bottom:-3px;right:-5px;background:#fff;border-radius:99px;font-size:10px;font-weight:800;padding:2px 6px;box-shadow:0 1px 5px #10306b33;color:#172c52}
+.avatar-ring img,.avatar-ring .avatar-fallback{width:100%;height:100%;border-radius:50%;object-fit:cover;display:grid;place-items:center;background:#eaf0fb;color:#2459aa;font-weight:800;font-size:26px}
+.avatar-pct{position:absolute;top:-4px;right:-6px;background:var(--ring-color,#2862c4);color:#fff;border-radius:99px;font-size:11px;font-weight:800;padding:3px 7px;box-shadow:0 2px 6px #10306b40;border:2px solid #fff}
 .my-avatar{position:relative;width:28px;height:28px;border-radius:50%;border:none;padding:0;background:#ffffff22;cursor:pointer;flex:none;display:grid;place-items:center;color:#fff;font-size:12px;font-weight:800;overflow:hidden}
 .my-avatar #my-avatar-img{width:100%;height:100%;display:grid;place-items:center}
 .my-avatar img{width:100%;height:100%;border-radius:50%;object-fit:cover;display:block}
