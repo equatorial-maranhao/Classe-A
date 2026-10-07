@@ -197,8 +197,10 @@ input[type=text],input[type=email],input[type=password],input[type=number],input
 .request-selects{display:flex;flex-direction:column;gap:6px}
 .request-actions{display:flex;gap:8px}
 .admin-list{display:flex;flex-wrap:wrap;gap:8px}
-.chip{background:#eaf0fb;color:#204c9c;border-radius:99px;padding:6px 14px 6px 11px;font-size:13px;font-weight:650;display:inline-flex;align-items:center;gap:7px}
+.chip{background:#eaf0fb;color:#204c9c;border-radius:99px;padding:6px 10px 6px 11px;font-size:13px;font-weight:650;display:inline-flex;align-items:center;gap:7px}
 .chip::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--dot,#2862c4);flex:none}
+.chip-remove{background:none;border:none;color:#5f7292;font-size:15px;line-height:1;padding:0 0 0 2px;font-weight:700;cursor:pointer}
+.chip-remove:hover{color:#a4302f}
 .profile-row{display:flex;justify-content:space-between;align-items:center;border-top:1px solid #edf0f6;padding:12px 0}
 .profile-row:first-child{border-top:none}
 .profile-row small{color:#70819c;margin-left:4px}

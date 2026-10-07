@@ -724,7 +724,7 @@ function renderAdmin() {
       <div class="admin-block-main">
         <div class="block-head"><span class="icon-badge sm green"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M16 11c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3Zm-8 0c1.66 0 3-1.34 3-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3Zm0 2c-2.67 0-8 1.34-8 4v2h10v-2c0-1.35.68-2.46 1.76-3.32C10.5 13.16 9.14 13 8 13Zm8 0c-.29 0-.62.02-.97.05C16.2 13.84 17 14.84 17 16v2h7v-2c0-2.66-5.33-4-8-4Z" fill="currentColor"/></svg></span><div class="block-head-text"><h3>Colaboradores</h3><p>Gerencie os colaboradores da equipe.</p></div></div>
         <div class="admin-list">
-          ${state.people.map(p => `<span class="chip" style="--dot:${avatarColorFor(p.name)}">${escapeHtml(p.name)}</span>`).join('')}
+          ${state.people.map(p => `<span class="chip" style="--dot:${avatarColorFor(p.name)}">${escapeHtml(p.name)}<button type="button" class="chip-remove remove-person" data-id="${p.id}" data-name="${escapeAttr(p.name)}" title="Excluir colaborador">×</button></span>`).join('')}
         </div>
         <form id="add-person-form" class="inline-form add-person-row">
           <div class="search-field">${ICON_SEARCH}<input type="text" id="new-person-name" placeholder="Nome da pessoa" required></div>
@@ -748,6 +748,7 @@ function renderAdmin() {
     </div>
   `;
 
+  $$('.remove-person', el).forEach(b => b.addEventListener('click', (e) => { e.stopPropagation(); removePerson(b.dataset.id, b.dataset.name); }));
   $$('.approve-req', el).forEach(b => b.addEventListener('click', (e) => approveRequest(e.target.closest('.request-row'))));
   $$('.reject-req', el).forEach(b => b.addEventListener('click', (e) => rejectRequest(e.target.closest('.request-row').dataset.req)));
   $$('.req-role', el).forEach(sel => {
@@ -818,6 +819,13 @@ async function rejectRequest(reqId) {
   await sb.from('access_requests').update({ status: 'rejeitado', reviewed_by: state.profile.id, reviewed_at: new Date().toISOString() }).eq('id', reqId);
   await loadPendingRequests();
   renderAdmin();
+}
+
+async function removePerson(personId, name) {
+  if (!confirm(`Excluir "${name}" da lista de colaboradores? Isso apaga também o histórico de cursos e feedbacks dela em todos os ciclos. As RRs e PMS do trimestre não são afetadas, pois não são por pessoa. Essa ação não pode ser desfeita.`)) return;
+  const { error } = await sb.from('people').delete().eq('id', personId);
+  if (error) { alert('Erro ao excluir colaborador: ' + error.message); return; }
+  await loadCore();
 }
 
 async function loadProfilesList() {
