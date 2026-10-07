@@ -402,12 +402,21 @@ function renderOverview() {
     <div class="overview">
       <div class="surface progress">
         <span class="kicker">Andamento do ciclo</span>
-        <div class="progress-main"><strong>${doneAll} de ${totalAll}</strong><span>entregas concluídas<br>${pct}% do planejado</span></div>
+        <div class="progress-main">
+          <div class="ring-wrap">
+            <svg viewBox="0 0 120 120" class="progress-ring">
+              <circle cx="60" cy="60" r="52" class="ring-track"></circle>
+              <circle cx="60" cy="60" r="52" class="ring-value" style="stroke:${progressColor(pctExact)};stroke-dasharray:${RING_CIRC};stroke-dashoffset:${RING_CIRC * (1 - pctExact / 100)}"></circle>
+            </svg>
+            <div class="ring-center"><strong>${pct}%</strong><span>do planejado</span></div>
+          </div>
+          <div class="progress-text"><strong>${doneAll} de ${totalAll}</strong><span>entregas concluídas</span></div>
+        </div>
         <div class="track"><span style="width:${pctExact}%;background:${progressColor(pctExact)}"></span></div>
         <div class="progress-foot"><span>${doneAll} concluídas</span><span>${totalAll - doneAll} pendentes</span></div>
       </div>
       <div class="surface priority">
-        <h3>Foco até o fim do ciclo</h3>
+        <div class="card-head"><span class="icon-badge blue">${ICON_TARGET}</span><h3>Foco até o fim do ciclo</h3></div>
         ${pend.length ? pend.map(p => `
           <div class="priority-row">
             <div class="priority-row-main"><span class="icon-badge ${TYPE_META[p.label].variant}">${TYPE_META[p.label].svg}</span><div><strong>${p.label}</strong><small>${escapeHtml(p.detail)}</small></div></div>
@@ -417,7 +426,10 @@ function renderOverview() {
       </div>
     </div>
     <div class="surface chart" style="margin-top:16px">
-      <div class="chart-head"><h3>Como está cada frente</h3><p>Percentual concluído</p></div>
+      <div class="chart-head">
+        <div class="card-head" style="margin-bottom:0"><span class="icon-badge blue"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 20V10M11 20V4M18 20v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><h3>Como está cada frente</h3></div>
+        <span class="section-pill">Percentual concluído</span>
+      </div>
       <div class="chart-lines">
         ${chartLine('Cursos', doneCourses, totalCourses)}
         ${chartLine('Feedbacks', doneFeedbacks, totalFeedbacks)}
@@ -427,6 +439,8 @@ function renderOverview() {
     </div>
   `;
 }
+const RING_CIRC = 2 * Math.PI * 52;
+const ICON_TARGET = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="1.8"/><circle cx="11" cy="11" r="4" stroke="currentColor" stroke-width="1.8"/><circle cx="11" cy="11" r="1" fill="currentColor"/><path d="M15 3l4 2-1 4.3-4.3 1.2L13 6l2-3Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>';
 
 function chartLine(label, done, total) {
   const pct = total ? (done / total) * 100 : 0;
