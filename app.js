@@ -436,11 +436,11 @@ function renderOverview() {
         <div class="card-head" style="margin-bottom:0"><span class="icon-badge blue"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 20V10M11 20V4M18 20v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><h3>Como está cada frente</h3></div>
         <span class="section-pill">Percentual concluído</span>
       </div>
-      <div class="chart-lines">
-        ${chartLine('Cursos', doneCourses, totalCourses)}
-        ${chartLine('Feedbacks', doneFeedbacks, totalFeedbacks)}
-        ${chartLine('RRs', doneRRs, totalRRs)}
-        ${chartLine('PMS', donePMS, totalPMS)}
+      <div class="frente-grid">
+        ${frenteRing('Cursos', doneCourses, totalCourses)}
+        ${frenteRing('Feedbacks', doneFeedbacks, totalFeedbacks)}
+        ${frenteRing('RRs', doneRRs, totalRRs)}
+        ${frenteRing('PMS', donePMS, totalPMS)}
       </div>
     </div>
   `;
@@ -452,6 +452,16 @@ function chartLine(label, done, total) {
   const pct = total ? (done / total) * 100 : 0;
   const meta = TYPE_META[label];
   return `<div class="chart-line"><span class="chart-line-label"><span class="icon-badge sm ${meta.variant}">${meta.svg}</span><b>${label}</b></span><div class="bar"><span style="width:${pct}%;background:${progressColor(pct)}"></span></div><span class="value">${Math.round(pct)}%</span></div>`;
+}
+function frenteRing(label, done, total) {
+  const pct = total ? (done / total) * 100 : 0;
+  const pctRound = Math.round(pct);
+  const meta = TYPE_META[label];
+  return `<div class="frente-item">
+    <div class="ring" style="--pct:${pct};--ring-color:${progressColor(pct)}"><b>${pctRound}%</b></div>
+    <span class="frente-label"><span class="icon-badge sm ${meta.variant}">${meta.svg}</span><b>${label}</b></span>
+    <span class="frente-count">${done} de ${total}</span>
+  </div>`;
 }
 
 // Retorna uma cor num degrade de vermelho (0%) até verde (100%), passando por

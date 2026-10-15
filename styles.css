@@ -68,6 +68,14 @@ header{background-color:#00194d;background-image:url('header-bg.png');background
 .chart-line .bar{height:14px;background:#e9eef7;border-radius:99px;overflow:hidden}
 .chart-line .bar span{display:block;height:100%;background:#2b60bd;border-radius:99px;transition:width .3s,background-color .3s}
 .chart-line .value{text-align:right;font-size:14px;font-weight:750;color:#24539f}
+.frente-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.frente-item{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;padding:18px 10px;background:#f6f9fe;border-radius:16px}
+.frente-item .ring{width:84px;height:84px;transition:background .3s}
+.frente-item .ring b{font-size:17px}
+.frente-label{display:flex;align-items:center;gap:7px;font-size:13.5px}
+.frente-label b{font-size:13.5px}
+.frente-count{font-size:12px;color:#657896}
+@media(max-width:700px){.frente-grid{grid-template-columns:repeat(2,1fr)}}
 
 /* ---------- Colaboradores ---------- */
 .people{display:grid;grid-template-columns:repeat(5,1fr);gap:13px}
