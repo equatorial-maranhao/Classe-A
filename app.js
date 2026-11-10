@@ -242,6 +242,7 @@ function traduzErro(msg) {
   if (/already registered/i.test(msg)) return 'Este e-mail já tem uma conta. Tente entrar.';
   if (/invalid login credentials/i.test(msg)) return 'E-mail ou senha incorretos.';
   if (/email not confirmed/i.test(msg)) return 'Confirme seu e-mail antes de entrar.';
+  if (/failed to fetch|networkerror|load failed/i.test(msg)) return 'Não foi possível conectar ao servidor. Sua rede pode estar bloqueando o acesso (comum em redes corporativas). Tente por outra rede ou peça à TI para liberar *.supabase.co.';
   if (/password should be at least/i.test(msg)) return 'A senha precisa ter pelo menos 6 caracteres.';
   return msg;
 }
