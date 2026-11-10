@@ -157,6 +157,9 @@ header{background-color:#00194d;background-image:url('header-bg.png');background
 .role-badge.role-master{background:#ffce7a;color:#5c3a00}
 .role-badge.role-colab{background:#bcd2f9;color:#173a72}
 .link-btn{background:none;border:none;color:#a9c0ee;text-decoration:underline;font-size:13px;padding:0}
+.link-btn.dark{color:#24539f;display:block;margin:14px auto 0;cursor:pointer}
+.auth-help{color:#4d6283;font-size:13.5px;line-height:1.5;margin:0 0 14px}
+
 #logout-btn{color:#dce6fb}
 
 /* ---------- Buttons ---------- */
@@ -178,6 +181,7 @@ label{display:block;font-size:12px;font-weight:700;color:#4a5f83;margin:14px 0 5
 input[type=text],input[type=email],input[type=password],input[type=number],input[type=file],input[type=date],select,textarea{
   width:100%;padding:10px 12px;border:1px solid #d7e2f6;border-radius:9px;background:#fbfcfe;color:#172c52}
 .form-error{color:#a4302f;font-size:13px;min-height:18px;margin-top:8px}
+.form-error.form-ok{color:#1b7a3d}
 .modal-backdrop{position:fixed;inset:0;background:#0e1c3aaa;display:flex;align-items:center;justify-content:center;z-index:50;padding:20px}
 .modal-card{background:#fff;border-radius:16px;padding:26px;max-width:420px;width:100%;max-height:90vh;overflow:auto}
 .modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}

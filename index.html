@@ -19,7 +19,7 @@
   <div class="auth-card">
     <div class="auth-brand">Equatorial Maranhão</div>
     <h1 class="auth-title">Classe A</h1>
-    <div class="auth-tabs">
+    <div class="auth-tabs" id="auth-tabs">
       <button type="button" id="auth-tab-login" class="auth-tab active">Entrar</button>
       <button type="button" id="auth-tab-signup" class="auth-tab">Solicitar acesso</button>
     </div>
@@ -30,6 +30,24 @@
       <input type="password" id="login-password" required autocomplete="current-password">
       <p id="login-error" class="form-error"></p>
       <button type="submit" class="btn-primary full">Entrar</button>
+      <button type="button" class="link-btn dark" id="btn-forgot">Esqueci minha senha</button>
+    </form>
+    <form id="form-forgot" class="auth-form" style="display:none">
+      <p class="auth-help">Informe o e-mail da sua conta. Enviaremos um link para você criar uma nova senha.</p>
+      <label>E-mail</label>
+      <input type="email" id="forgot-email" required autocomplete="username">
+      <p id="forgot-msg" class="form-error"></p>
+      <button type="submit" class="btn-primary full" id="forgot-submit">Enviar link de redefinição</button>
+      <button type="button" class="link-btn dark" id="btn-forgot-back">Voltar para o login</button>
+    </form>
+    <form id="form-recovery" class="auth-form" style="display:none">
+      <p class="auth-help">Crie uma nova senha para sua conta.</p>
+      <label>Nova senha</label>
+      <input type="password" id="recovery-password" required autocomplete="new-password" minlength="6">
+      <label>Repita a nova senha</label>
+      <input type="password" id="recovery-password2" required autocomplete="new-password" minlength="6">
+      <p id="recovery-msg" class="form-error"></p>
+      <button type="submit" class="btn-primary full" id="recovery-submit">Salvar nova senha</button>
     </form>
     <form id="form-signup" class="auth-form" style="display:none">
       <label>Nome completo</label>

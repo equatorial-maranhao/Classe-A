@@ -72,9 +72,20 @@ function show(id) {
 // ------------------------------------------------------------
 async function boot() {
   try {
+    // Link de "esqueci minha senha": o Supabase abre o site com type=recovery
+    // no endereço. Nesse caso mostramos a tela de nova senha em vez do app.
+    const hashParams = new URLSearchParams(location.hash.replace(/^#/, ''));
+    state.recovery = hashParams.get('type') === 'recovery';
     const { data: { session } } = await sb.auth.getSession();
     state.session = session;
     sb.auth.onAuthStateChange((event, newSession) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        state.session = newSession;
+        state.recovery = true;
+        showRecovery();
+        return;
+      }
+      if (state.recovery) { state.session = newSession; return; }
       // O Supabase dispara esse evento toda vez que a aba volta a ficar em
       // foco (ex: trocou de app e voltou) para renovar o token, mesmo que
       // seja o mesmo usuário já logado. Sem esse filtro, a tela inteira
@@ -84,11 +95,24 @@ async function boot() {
       if (sameUser && state.profile && event !== 'SIGNED_OUT') return;
       route();
     });
-    route();
+    if (state.recovery) showRecovery(); else route();
   } catch (err) {
     document.getElementById('view-loading').innerHTML =
       '<div style="color:#fff;text-align:center;max-width:320px"><p>Não foi possível conectar ao banco de dados.</p><p style="font-size:13px;opacity:.8">Confira se config.js tem a URL e a chave corretas do projeto Supabase.</p></div>';
   }
+}
+
+function showAuthPanel(name) {
+  $('#form-login').style.display = name === 'login' ? '' : 'none';
+  $('#form-signup').style.display = name === 'signup' ? '' : 'none';
+  $('#form-forgot').style.display = name === 'forgot' ? '' : 'none';
+  $('#form-recovery').style.display = name === 'recovery' ? '' : 'none';
+  $('#auth-tabs').style.display = (name === 'login' || name === 'signup') ? '' : 'none';
+}
+
+function showRecovery() {
+  showAuthPanel('recovery');
+  show('view-auth');
 }
 
 async function route() {
@@ -119,11 +143,67 @@ function initAuthForm() {
   const formLogin = $('#form-login'), formSignup = $('#form-signup');
   tabLogin.addEventListener('click', () => {
     tabLogin.classList.add('active'); tabSignup.classList.remove('active');
-    formLogin.style.display = ''; formSignup.style.display = 'none';
+    showAuthPanel('login');
   });
   tabSignup.addEventListener('click', () => {
     tabSignup.classList.add('active'); tabLogin.classList.remove('active');
-    formSignup.style.display = ''; formLogin.style.display = 'none';
+    showAuthPanel('signup');
+  });
+
+  $('#btn-forgot').addEventListener('click', () => {
+    $('#forgot-email').value = $('#login-email').value.trim();
+    $('#forgot-msg').textContent = '';
+    $('#forgot-msg').classList.remove('form-ok');
+    showAuthPanel('forgot');
+  });
+  $('#btn-forgot-back').addEventListener('click', () => showAuthPanel('login'));
+
+  $('#form-forgot').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = $('#forgot-email').value.trim();
+    const msgEl = $('#forgot-msg');
+    const btn = $('#forgot-submit');
+    msgEl.classList.remove('form-ok');
+    msgEl.textContent = '';
+    btn.disabled = true;
+    const redirectTo = location.origin + location.pathname;
+    const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo });
+    btn.disabled = false;
+    if (error) {
+      msgEl.textContent = /rate limit|seconds/i.test(error.message)
+        ? 'Muitas tentativas. Aguarde alguns minutos e tente de novo.'
+        : traduzErro(error.message);
+      return;
+    }
+    // Mensagem neutra: não revela se o e-mail existe ou não.
+    msgEl.classList.add('form-ok');
+    msgEl.textContent = 'Se este e-mail tiver uma conta, você receberá um link para redefinir a senha. Confira também o spam.';
+  });
+
+  $('#form-recovery').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const p1 = $('#recovery-password').value;
+    const p2 = $('#recovery-password2').value;
+    const msgEl = $('#recovery-msg');
+    const btn = $('#recovery-submit');
+    msgEl.classList.remove('form-ok');
+    msgEl.textContent = '';
+    if (p1.length < 6) { msgEl.textContent = 'A senha precisa ter pelo menos 6 caracteres.'; return; }
+    if (p1 !== p2) { msgEl.textContent = 'As senhas não conferem.'; return; }
+    btn.disabled = true;
+    const { error } = await sb.auth.updateUser({ password: p1 });
+    btn.disabled = false;
+    if (error) {
+      msgEl.textContent = /same|different/i.test(error.message)
+        ? 'A nova senha precisa ser diferente da atual.'
+        : traduzErro(error.message);
+      return;
+    }
+    msgEl.classList.add('form-ok');
+    msgEl.textContent = 'Senha alterada! Entrando…';
+    state.recovery = false;
+    history.replaceState(null, '', location.pathname + location.search);
+    setTimeout(() => route(), 800);
   });
 
   formLogin.addEventListener('submit', async (e) => {
@@ -162,6 +242,7 @@ function traduzErro(msg) {
   if (/already registered/i.test(msg)) return 'Este e-mail já tem uma conta. Tente entrar.';
   if (/invalid login credentials/i.test(msg)) return 'E-mail ou senha incorretos.';
   if (/email not confirmed/i.test(msg)) return 'Confirme seu e-mail antes de entrar.';
+  if (/password should be at least/i.test(msg)) return 'A senha precisa ter pelo menos 6 caracteres.';
   return msg;
 }
 
